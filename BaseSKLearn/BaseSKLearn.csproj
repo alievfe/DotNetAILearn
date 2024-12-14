@@ -5,10 +5,19 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-    </PropertyGroup>
+      <UserSecretsId>2da3581f-d340-43eb-955b-9f7bcb4bd181</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Utils\" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+      <PackageReference Include="Microsoft.SemanticKernel" Version="1.32.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="tmpsecrets.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

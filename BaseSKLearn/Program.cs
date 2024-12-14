@@ -1,3 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using BaseSKLearn;
 
+#pragma warning disable SKEXP0010
 Console.WriteLine("Hello, World!");
+await SKHelloWorld.Test();
