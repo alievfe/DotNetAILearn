@@ -1,5 +1,8 @@
-﻿using BaseSKLearn;
+﻿using System.Text.Json;
+using BaseSKLearn;
+using BaseSKLearn.Utils;
 
 #pragma warning disable SKEXP0010
 Console.WriteLine("Hello, World!");
-await PromptFunctionTest.Yaml_Test();
+// await SKHelloWorld.Test();
+await FunctionCallingTest.AutoCall_Test();

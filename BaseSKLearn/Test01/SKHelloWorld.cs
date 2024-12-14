@@ -9,7 +9,7 @@ public class SKHelloWorld
     [Experimental("SKEXP0010")]
     public static async Task Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("OneApiSpark");
+        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
         // using HttpClient httpClient = new(new OneAPICustomHandler(config.Host));
 
         // create Kernel
