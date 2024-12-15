@@ -11,6 +11,7 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
       <PackageReference Include="Microsoft.SemanticKernel" Version="1.32.0" />
       <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.32.0" />
       <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.32.0" />
@@ -23,12 +24,12 @@
       <None Update="Test02\joke.yaml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="Test04\Plugins\**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>    
+      <None Update="Test04\Plugins\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Test05\Plugins\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
