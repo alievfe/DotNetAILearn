@@ -25,4 +25,10 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="Test04\Plugins\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>    
+    </ItemGroup>
+
 </Project>

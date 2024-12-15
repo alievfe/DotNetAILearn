@@ -5,4 +5,4 @@ using BaseSKLearn.Utils;
 #pragma warning disable SKEXP0010
 Console.WriteLine("Hello, World!");
 // await SKHelloWorld.Test();
-await FunctionCallingTest.AutoCall_Test();
+await PluginTest.S_Joke_Test();
