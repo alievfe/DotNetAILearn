@@ -16,6 +16,6 @@ var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "Qwen");
 // ).ManuallyCall_Test();
 
 // await new SKXZYTest(kernel).Translate("你好","EN");
-await new SKXZYTest(kernel).NativeNestedFunc("13,1,2,3");
+await new SKXZYTest(kernel).PlanTest("小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？");
 
 Console.ReadLine();

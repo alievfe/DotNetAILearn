@@ -1,7 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using BaseSKLearn.Plugins.MathPlg;
+using HandlebarsDotNet;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Planning.Handlebars;
 
 namespace BaseSKLearn;
 
@@ -85,5 +88,31 @@ public class SKXZYTest(Kernel kernel)
             new() { ["input"] = msg }
         );
         Console.WriteLine(res);
+    }
+
+    /// <summary>
+    /// 计划测试
+    /// </summary>
+    /// <param name="msg">
+    /// 案例输入：1.小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？
+    /// 2.小明有7个冰淇淋，我有2个冰淇淋，我们一共有几个冰淇淋？
+    /// </param>
+    /// <returns></returns> <summary>
+    public async Task PlanTest(string msg)
+    {
+        var planner = new HandlebarsPlanner(
+            new HandlebarsPlannerOptions()
+            {
+                // 如果您想使用循环进行测试，而不管模型选择如何，请更改此设置。
+                AllowLoops = true,
+            }
+        );
+        kernel.ImportPluginFromDefaultPathPromptDirectory("Calculate");
+        var plan = await planner.CreatePlanAsync(kernel, msg);
+        Console.WriteLine("Plan:\n");
+        Console.WriteLine(JsonSerializer.Serialize(plan));
+
+        var res = await plan.InvokeAsync(kernel);
+        System.Console.WriteLine(res);
     }
 }
