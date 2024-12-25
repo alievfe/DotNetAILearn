@@ -31,11 +31,12 @@
       <None Update="BaseDemos\Test05\Plugins\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Plugins\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Utils\" />
-    </ItemGroup>
+
 
     <ItemGroup>
       <ProjectReference Include="..\SKUtils\SKUtils.csproj" />

@@ -1,6 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseSKLearn", "BaseSKLearn\BaseSKLearn.csproj", "{319884BC-D107-414A-A638-F22791B1A7A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SKUtils", "SKUtils\SKUtils.csproj", "{93A8EBAA-A80F-46A7-AE93-13425CA26771}"
@@ -19,5 +18,8 @@ Global
 		{93A8EBAA-A80F-46A7-AE93-13425CA26771}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93A8EBAA-A80F-46A7-AE93-13425CA26771}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93A8EBAA-A80F-46A7-AE93-13425CA26771}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
