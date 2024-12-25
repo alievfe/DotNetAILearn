@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BaseSKLearn.Utils;
+namespace SKUtils;
 
 public class WeatherAPI
 {

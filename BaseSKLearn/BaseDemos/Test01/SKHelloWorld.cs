@@ -1,15 +1,32 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BaseSKLearn.Utils;
 using Microsoft.SemanticKernel;
+using SKUtils;
 
 namespace BaseSKLearn;
 
-public class SKHelloWorld
+public class SKHelloWorld(Kernel kernel)
 {
     [Experimental("SKEXP0010")]
-    public static async Task Test()
+    public async Task Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
+        // 用户输入
+        var request =
+            "I want to send an email to the marketing team celebrating their recent milestone";
+
+        // create prompt
+        var prompt = "这个请求的意图是什么? {{$request}}";
+
+        // Create a kernel arguments object and add the request
+        var ka = new KernelArguments { { nameof(request), request } };
+
+        var res = await kernel.InvokePromptAsync(prompt,ka);
+        Console.WriteLine(res);
+    }
+
+    [Experimental("SKEXP0010")]
+    public static async Task TestLearn()
+    {
+        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig, Program>("DouBao");
         // using HttpClient httpClient = new(new OneAPICustomHandler(config.Host));
 
         // create Kernel

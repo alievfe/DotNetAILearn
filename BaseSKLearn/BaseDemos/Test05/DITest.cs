@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BaseSKLearn.Plugins;
-using BaseSKLearn.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using SKUtils;
 
 namespace BaseSKLearn;
 
@@ -19,7 +19,7 @@ public class DITest
             .ConfigureServices(
                 (hostContext, services) =>
                 {
-                    var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
+                    var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig, Program>("DouBao");
 
                     // 注册kernel
                     services
@@ -87,7 +87,7 @@ public class Worker(IHostApplicationLifetime hostLifetime, Kernel kernel) : IHos
 
             _exitCode = 0;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             _exitCode = 1;
         }

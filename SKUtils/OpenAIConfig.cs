@@ -1,4 +1,4 @@
-﻿namespace BaseSKLearn.Utils;
+﻿namespace SKUtils;
 
 public class OpenAIConfig
 {

@@ -1,4 +1,4 @@
-﻿namespace BaseSKLearn.Utils;
+﻿namespace SKUtils;
 
 
 /// <summary>
@@ -7,7 +7,7 @@
 public class OneAPICustomHandler : HttpClientHandler
 {
     private readonly string _host;
-    private static readonly string[] UrlSources =  [ "api.openai.com", "openai.azure.com" ];
+    private static readonly string[] UrlSources = ["api.openai.com", "openai.azure.com"];
 
     /// <summary>
     /// 使用指定的模型URL初始化<see cref="OneAPICustomHandler"/>类的新实例。

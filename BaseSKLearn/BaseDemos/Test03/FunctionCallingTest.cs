@@ -1,27 +1,17 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BaseSKLearn.Utils;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using OpenAI.Assistants;
+using SKUtils;
 
 namespace BaseSKLearn;
 
 [Experimental("SKEXP0010")]
-public class FunctionCallingTest
+public class FunctionCallingTest(Kernel kernel, WeatherAPI weatherApi)
 {
-    public static async Task ManuallyCall_Test()
+    public async Task ManuallyCall_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("Qwen");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         // 注册 kernel function 到 plugins
         kernel.ImportPluginFromFunctions(
             "WeatherPlugin",
@@ -30,13 +20,16 @@ public class FunctionCallingTest
                     GetWeatherForCity,
                     "GetWeatherForCity",
                     "获取指定城市的天气"
-                )
+                ),
             ]
         );
 
         // 设置OpenAI提示执行的参数，温度设置为0期望更明确的答案，工具调用行为设置为启用内核插件函数，但需要手动调用。
-        OpenAIPromptExecutionSettings settings =
-            new() { Temperature = 0, ToolCallBehavior = ToolCallBehavior.EnableKernelFunctions };
+        OpenAIPromptExecutionSettings settings = new()
+        {
+            Temperature = 0,
+            ToolCallBehavior = ToolCallBehavior.EnableKernelFunctions,
+        };
 
         // 创建一个聊天历史记录，并添加系统消息和用户消息。
         var chatHistory = new ChatHistory();
@@ -90,21 +83,8 @@ public class FunctionCallingTest
         }
     }
 
-    public static async Task AutoCall_Test()
+    public async Task AutoCall_Test()
     {
-        var weatherApi = new WeatherAPI(
-            ConfigExtensions.FromSecretsConfig<string>("WeatherApiKey")
-        );
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("Qwen");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         kernel.ImportPluginFromFunctions(
             "WeatherPlugin",
             [
@@ -112,16 +92,15 @@ public class FunctionCallingTest
                     weatherApi.GetWeatherForCityAsync,
                     "GetWeatherForCityAsync",
                     "获取指定城市的天气"
-                )
+                ),
             ]
         );
 
-        OpenAIPromptExecutionSettings settings =
-            new()
-            {
-                Temperature = 0,
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
-            };
+        OpenAIPromptExecutionSettings settings = new()
+        {
+            Temperature = 0,
+            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+        };
 
         var chatHistory = new ChatHistory();
         var template = "我想知道现在北京的天气状况？";

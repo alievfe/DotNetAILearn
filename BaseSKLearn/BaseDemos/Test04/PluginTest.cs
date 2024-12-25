@@ -1,29 +1,18 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BaseSKLearn.Plugins.Finefood;
 using BaseSKLearn.Plugins.Weather;
-using BaseSKLearn.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 
 namespace BaseSKLearn;
 
 [Experimental("SKEXP0010")]
-public class PluginTest
+public class PluginTest(Kernel kernel)
 {
-    public static async Task S_Translate_Test()
+    public async Task S_Translate_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Test04", "Plugins");
-        string[] pluginNames =  [ "TranslatePlugins" ];
+        string[] pluginNames = ["TranslatePlugins"];
         foreach (var pluginName in pluginNames)
         {
             kernel.ImportPluginFromPromptDirectory(Path.Combine(folder, pluginName));
@@ -46,18 +35,8 @@ public class PluginTest
         Console.WriteLine($"Assistant: {result}");
     }
 
-    public static async Task S_Joke_Test()
+    public async Task S_Joke_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         // 注册插件，同时直接得到插件列表获取function用于调用
         string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Test04", "Plugins");
         var plugin = kernel.ImportPluginFromPromptDirectory(Path.Combine(folder, "Writers"));
@@ -77,75 +56,50 @@ public class PluginTest
         Console.WriteLine($"Assistant: {results}");
     }
 
-    public static async Task N_ImportPluginFromType_Weather_Test()
+    public async Task N_ImportPluginFromType_Weather_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         // kernel.ImportPluginFromType<WeatherPlugin>();
         // Kernel添加插件
         // var getWeatherFunc = kernel.Plugins.GetFunction(nameof(WeatherPlugin), "WeatherSearch");
         var plugin = kernel.CreatePluginFromType<WeatherPlugin>();
         var getWeatherFunc = plugin[nameof(WeatherPlugin.WeatherSearch)];
-        var weatherContent = await kernel.InvokeAsync(getWeatherFunc, new() { ["city"] = "火焰山" });
+        var weatherContent = await kernel.InvokeAsync(
+            getWeatherFunc,
+            new() { ["city"] = "火焰山" }
+        );
         Console.WriteLine(weatherContent.ToString());
     }
 
-    public static async Task N_ImportPluginFromObject_Finefood_Test()
+    public async Task N_ImportPluginFromObject_Finefood_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         IServiceCollection services = new ServiceCollection();
         services.AddSingleton<FinefoodPlugin>();
         var rootProvider = services.BuildServiceProvider();
         FinefoodPlugin finefoodPlugin = rootProvider.GetRequiredService<FinefoodPlugin>();
         var plugin = kernel.ImportPluginFromObject(finefoodPlugin);
-        var weatherContent = await plugin[nameof(FinefoodPlugin.GetFinefoodList)].InvokeAsync(
-            kernel,
-            new() { ["city"] = "北京" }
-        );
+        var weatherContent = await plugin[nameof(FinefoodPlugin.GetFinefoodList)]
+            .InvokeAsync(kernel, new() { ["city"] = "北京" });
         Console.WriteLine(weatherContent.ToString());
     }
 
-    public static async Task N_ImportPluginFromFunctions_Test()
+    public async Task N_ImportPluginFromFunctions_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("DouBao");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         // 创建 Kernel Function，以lambda匿名函数创建
         var kf = kernel.CreateFunctionFromMethod(
             (string city) => $"{city} 好玩的地方有八达岭长城，故宫，恭王府等",
             "GetTourismClassic",
             description: "获取城市的经典",
-            [ new KernelParameterMetadata(name: "city") { Description = "城市名" } ]
+            [new KernelParameterMetadata(name: "city") { Description = "城市名" }]
         );
-        kernel.ImportPluginFromFunctions("TourismClassicPlugin", [ kf ]);
-        var getTourismClassic = kernel
-            .Plugins
-            .GetFunction("TourismClassicPlugin", "GetTourismClassic");
-        var weatherContent = await getTourismClassic.InvokeAsync(kernel, new() { ["city"] = "北京" });
+        kernel.ImportPluginFromFunctions("TourismClassicPlugin", [kf]);
+        var getTourismClassic = kernel.Plugins.GetFunction(
+            "TourismClassicPlugin",
+            "GetTourismClassic"
+        );
+        var weatherContent = await getTourismClassic.InvokeAsync(
+            kernel,
+            new() { ["city"] = "北京" }
+        );
         Console.WriteLine(weatherContent.ToString());
     }
 }

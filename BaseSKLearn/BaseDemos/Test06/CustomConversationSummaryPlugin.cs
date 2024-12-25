@@ -11,17 +11,17 @@ public class CustomConversationSummaryPlugin
     private const int MaxTokens = 1024;
     private readonly KernelFunction _summarizeConversationFunction;
     internal const string SummarizeConversationDefinition = """
-                                                            BEGIN CONTENT TO SUMMARIZE:
-                                                            {{$INPUT}}
+        BEGIN CONTENT TO SUMMARIZE:
+        {{$INPUT}}
 
-                                                            END CONTENT TO SUMMARIZE.
+        END CONTENT TO SUMMARIZE.
 
-                                                            Please summarize the conversation, highlighting the main points and any conclusions reached, in {{$LANGUAGE}} if specified, or in the most appropriate language otherwise.
-                                                            Do not incorporate any external general knowledge.
-                                                            The summary should be in plain text, in complete sentences, without any markup or tags.
+        Please summarize the conversation, highlighting the main points and any conclusions reached, in {{$LANGUAGE}} if specified, or in the most appropriate language otherwise.
+        Do not incorporate any external general knowledge.
+        The summary should be in plain text, in complete sentences, without any markup or tags.
 
-                                                            BEGIN SUMMARY:
-                                                            """;
+        BEGIN SUMMARY:
+        """;
 
     public CustomConversationSummaryPlugin()
     {
@@ -31,8 +31,8 @@ public class CustomConversationSummaryPlugin
             {
                 { "Temperature", 0.1 },
                 { "TopP", 0.5 },
-                { nameof(MaxTokens), 1024 }
-            }
+                { nameof(MaxTokens), 1024 },
+            },
         };
         _summarizeConversationFunction = KernelFunctionFactory.CreateFromPrompt(
             SummarizeConversationDefinition,

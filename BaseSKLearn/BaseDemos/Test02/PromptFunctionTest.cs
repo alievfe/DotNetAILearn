@@ -1,26 +1,16 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BaseSKLearn.Utils;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
+using SKUtils;
 
 namespace BaseSKLearn;
 
 [Experimental("SKEXP0010")]
-public class PromptFunctionTest
+public class PromptFunctionTest(Kernel kernel)
 {
-    public static async Task String_Test()
+    public async Task String_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("OneApiSpark");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         var request =
             "I want to send an email to the marketing team celebrating their recent milestone.";
         var prompt = "What is the intent of this request? {{$request}}";
@@ -38,21 +28,11 @@ public class PromptFunctionTest
         Console.WriteLine(functionResult.ToString());
     }
 
-    public static async Task PromptTemplateConfig_Test()
+    public async Task PromptTemplateConfig_Test()
     {
         string request =
             "I want to send an email to the marketing team celebrating their recent milestone.";
-        string prompt = "What is the intent of this request? {{$request}}";
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("OneApiSpark");
-        using HttpClient httpClient = new(new OneAPICustomHandler(config.Host));
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                httpClient: httpClient
-            )
-            .Build();
+
         var kernelFunction = kernel.CreateFunctionFromPrompt(
             new PromptTemplateConfig
             {
@@ -67,8 +47,8 @@ public class PromptFunctionTest
                     {
                         Name = "request",
                         Description = "The user's request.",
-                        IsRequired = true
-                    }
+                        IsRequired = true,
+                    },
                 ],
                 // OpenAI的执行设置，指定了最大令牌数（MaxTokens）为1024，以及温度（Temperature）为0。温度是用于控制生成文本随机性的参数，温度为0意味着生成的文本将是最可能的选项，没有随机性。
                 ExecutionSettings = new Dictionary<string, PromptExecutionSettings>
@@ -86,18 +66,8 @@ public class PromptFunctionTest
         Console.WriteLine(functionResult.ToString());
     }
 
-    public static async Task Yaml_Test()
+    public async Task Yaml_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("OneApiSpark");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         //读取yaml文件地址
         var promptYaml = await File.ReadAllTextAsync(
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Test02", "joke.yaml")
@@ -113,22 +83,12 @@ public class PromptFunctionTest
         Console.WriteLine(results.ToString());
     }
 
-    public static async Task Handlebars_Test()
+    public async Task Handlebars_Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("OneApiSpark");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-
         var template = """
-                       <message role="system">Instructions: What is the intent of this request?</message>
-                       <message role="user">{{request}}</message>
-                       """;
+            <message role="system">Instructions: What is the intent of this request?</message>
+            <message role="user">{{request}}</message>
+            """;
         var kernelFunction = kernel.CreateFunctionFromPrompt(
             new PromptTemplateConfig()
             {
@@ -142,7 +102,7 @@ public class PromptFunctionTest
                     {
                         Name = "request",
                         Description = "User's request.",
-                        IsRequired = true
+                        IsRequired = true,
                     },
                 ],
                 ExecutionSettings = new Dictionary<string, PromptExecutionSettings>()
@@ -151,7 +111,7 @@ public class PromptFunctionTest
                         OpenAIPromptExecutionSettings.DefaultServiceId,
                         new OpenAIPromptExecutionSettings() { MaxTokens = 2048, Temperature = 0.6 }
                     },
-                }
+                },
             },
             new HandlebarsPromptTemplateFactory()
         );

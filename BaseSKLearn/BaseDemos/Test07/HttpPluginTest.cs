@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BaseSKLearn.Utils;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -8,20 +7,10 @@ using Microsoft.SemanticKernel.Plugins.Core;
 namespace BaseSKLearn;
 
 [Experimental("SKEXP0010")]
-public class HttpPluginTest
+public class HttpPluginTest(Kernel kernel)
 {
-    public static async Task Test()
+    public async Task Test()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig>("Qwen");
-        var kernel = Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
-        
         // 导入HttpPlugin
         var httpPlugin = kernel.ImportPluginFromType<HttpPlugin>();
 
@@ -36,8 +25,10 @@ public class HttpPluginTest
         {
             history.AddUserMessage(userInput);
 
-            OpenAIPromptExecutionSettings openAIPromptExecutionSettings =
-                new() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+            {
+                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+            };
             var result = await chatCompletionService.GetChatMessageContentAsync(
                 history,
                 executionSettings: openAIPromptExecutionSettings,
