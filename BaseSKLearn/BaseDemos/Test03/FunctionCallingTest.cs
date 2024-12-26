@@ -99,7 +99,9 @@ public class FunctionCallingTest(Kernel kernel, WeatherAPI weatherApi)
         OpenAIPromptExecutionSettings settings = new()
         {
             Temperature = 0,
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+            // ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+            // 更新迁移 https://learn.microsoft.com/en-gb/semantic-kernel/support/migration/function-calling-migration-guide?pivots=programming-language-csharp
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
         };
 
         var chatHistory = new ChatHistory();
