@@ -9,24 +9,15 @@ public class SKHelloWorld(Kernel kernel)
     [Experimental("SKEXP0010")]
     public async Task Test()
     {
-        // 用户输入
-        var request =
-            "I want to send an email to the marketing team celebrating their recent milestone";
-
-        // create prompt
-        var prompt = "这个请求的意图是什么? {{$request}}";
-
-        // Create a kernel arguments object and add the request
-        var ka = new KernelArguments { { nameof(request), request } };
-
-        var res = await kernel.InvokePromptAsync(prompt,ka);
+        var prompt = "hello";
+        var res = await kernel.InvokePromptAsync(prompt);
         Console.WriteLine(res);
     }
 
     [Experimental("SKEXP0010")]
     public static async Task TestLearn()
     {
-        var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig, Program>("DouBao");
+        var config = ConfigExtensions.GetConfig<OpenAIConfig, Program>("DouBao");
         // using HttpClient httpClient = new(new OneAPICustomHandler(config.Host));
 
         // create Kernel

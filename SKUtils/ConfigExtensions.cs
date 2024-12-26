@@ -6,44 +6,88 @@ namespace SKUtils;
 
 public static class ConfigExtensions
 {
-    public static T FromSecretsConfig<T, P>(string sectionName)
+    public static T GetConfig<T, P>(string sectionName)
         where P : class =>
-        new ConfigurationBuilder().AddUserSecrets<P>().Build().GetSection(sectionName).Get<T>()
+        LoadConfigFromSecrets<P>().GetSection(sectionName).Get<T>()
         ?? throw new InvalidDataException("Invalid semantic kernel configuration is empty");
 
-    public static T FromJsonConfig<T>(string jsonPath, string sectionName) =>
-        new ConfigurationBuilder().AddJsonFile(jsonPath).Build().GetSection(sectionName).Get<T>()
+    public static T GetConfig<T>(string jsonPath, string sectionName) =>
+        LoadConfigFromJson(jsonPath).GetSection(sectionName).Get<T>()
         ?? throw new InvalidDataException("Invalid semantic kernel configuration is empty");
 
-    [Experimental("SKEXP0010")]
-    public static Kernel GetKernel<P>(string llmName)
-        where P : class
+    public static IConfigurationRoot LoadConfigFromSecrets<P>()
+        where P : class => new ConfigurationBuilder().AddUserSecrets<P>().Build();
+
+    public static IConfigurationRoot LoadConfigFromJson(string jsonPath) =>
+        new ConfigurationBuilder().AddJsonFile(jsonPath).Build();
+
+    public static IKernelBuilder AddOpenAIChat(this IKernelBuilder builder, OpenAIConfig config)
     {
-        var config = FromSecretsConfig<OpenAIConfig, P>(llmName);
-        return Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
+        return builder.AddOpenAIChatCompletion(
+            modelId: config.ModelId,
+            apiKey: config.ApiKey,
+            endpoint: config.Endpoint
+        );
     }
 
-    [Experimental("SKEXP0010")]
-    public static Kernel GetKernel(string jsonPath, string llmName)
+    public static IKernelBuilder AddOpenAIChatWithHttpClient(
+        this IKernelBuilder builder,
+        OpenAIConfig config
+    )
     {
-        var config = FromJsonConfig<OpenAIConfig>(jsonPath, llmName);
-        return Kernel
-            .CreateBuilder()
-            .AddOpenAIChatCompletion(
-                modelId: config.ModelId,
-                apiKey: config.ApiKey,
-                endpoint: config.Endpoint
-            )
-            .Build();
+        return builder.AddOpenAIChatCompletion(
+            modelId: config.ModelId,
+            apiKey: config.ApiKey,
+            httpClient: new HttpClient(new AIHostCustomHandler(config.Host))
+        );
+    }
+
+    public static IKernelBuilder AddOpenAIEmbedding(
+        this IKernelBuilder builder,
+        OpenAIConfig config
+    )
+    {
+        return builder.AddOpenAITextEmbeddingGeneration(
+            modelId: config.ModelId,
+            apiKey: config.ApiKey,
+            httpClient: new HttpClient(new AIHostCustomHandler(config.Host))
+        );
+    }
+
+    public static Kernel GetKernel<P>(string chatModelName, string? ebdModelName = null)
+        where P : class
+    {
+        var configRoot = LoadConfigFromSecrets<P>();
+        var chatConfig = configRoot.GetSection(chatModelName).Get<OpenAIConfig>();
+        var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
+        var builder = Kernel.CreateBuilder().AddOpenAIChat(chatConfig);
+        if (ebdModelName != null)
+            builder.AddOpenAIEmbedding(ebdConfig);
+        return builder.Build();
+    }
+
+    public static Kernel GetKernel(
+        string jsonPath,
+        string chatModelName,
+        string? ebdModelName = null
+    )
+    {
+        var configRoot = LoadConfigFromJson(jsonPath);
+        var chatConfig = configRoot.GetSection(chatModelName).Get<OpenAIConfig>();
+        var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
+        var builder = Kernel.CreateBuilder().AddOpenAIChat(chatConfig);
+        if (ebdModelName != null)
+            builder.AddOpenAIEmbedding(ebdConfig);
+        return builder.Build();
+    }
+
+    public static Kernel GetKernelEmbedding(string jsonPath, string ebdModelName)
+    {
+        var config = GetConfig<OpenAIConfig>(jsonPath, ebdModelName);
+        var builder = Kernel.CreateBuilder().AddOpenAIEmbedding(config);
+        return builder.Build();
     }
 
     public static WeatherAPI GetWeatherAPI(string jsonPath) =>
-        new(FromJsonConfig<string>(jsonPath, "WeatherApiKey"));
+        new(GetConfig<string>(jsonPath, "WeatherApiKey"));
 }

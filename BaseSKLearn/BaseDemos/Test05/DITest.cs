@@ -19,7 +19,7 @@ public class DITest
             .ConfigureServices(
                 (hostContext, services) =>
                 {
-                    var config = ConfigExtensions.FromSecretsConfig<OpenAIConfig, Program>("DouBao");
+                    var config = ConfigExtensions.GetConfig<OpenAIConfig, Program>("DouBao");
 
                     // 注册kernel
                     services

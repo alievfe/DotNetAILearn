@@ -4,11 +4,10 @@ using BaseSKLearn.Plugins.MathPlg;
 using Microsoft.SemanticKernel;
 using SKUtils;
 
-#pragma warning disable SKEXP0010
 Console.WriteLine("Hello, World!");
 
-var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "InternLM");
-
+// var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "InternLM");
+var kernel = ConfigExtensions.GetKernelEmbedding("./tmpsecrets.json", "DouBao-Ebd");
 // await new SKHelloWorld(kernel).Test();
 // await new FunctionCallingTest(
 //     kernel,
@@ -18,4 +17,5 @@ var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "InternLM");
 // await new SKXZYTest(kernel).Translate("你好","EN");
 // await new SKXZYTest(kernel).PlanTest("小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？");
 
+await new VectorStoresAndEmbeddingsTest(kernel).InMemoryEmbeddingTest();
 Console.ReadLine();
