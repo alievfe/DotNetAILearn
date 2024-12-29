@@ -74,10 +74,12 @@ public static class ConfigExtensions
     {
         var configRoot = LoadConfigFromJson(jsonPath);
         var chatConfig = configRoot.GetSection(chatModelName).Get<OpenAIConfig>();
-        var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
         var builder = Kernel.CreateBuilder().AddOpenAIChat(chatConfig);
         if (ebdModelName != null)
+        {
+            var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
             builder.AddOpenAIEmbedding(ebdConfig);
+        }
         return builder.Build();
     }
 
