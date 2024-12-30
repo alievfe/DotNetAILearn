@@ -16,8 +16,9 @@ var kernel = ConfigExtensions.GetKernel2("./tmpsecrets.json", "DouBao");
 
 // await new SKXZYTest(kernel).Translate("你好","EN");
 // await new SKXZYTest(kernel).PlanTest("小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？");
+// await new SKXZYTest(kernel).PipelineTest();
 
 // await new VectorStoresAndEmbeddingsTest(kernel).InMemoryEmbeddingTest();
 
-await new SKXZYTest(kernel).PipelineTest();
+
 Console.ReadLine();
