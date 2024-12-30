@@ -7,6 +7,7 @@ using HandlebarsDotNet;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Planning.Handlebars;
 using Microsoft.SemanticKernel.Plugins.Core;
+using SKUtils.SKExtensions;
 
 namespace BaseSKLearn;
 
@@ -183,5 +184,28 @@ public class SKXZYTest(Kernel kernel)
         }
         var result = await kernel.InvokeAsync(todoFunc, new KernelArguments() { ["input"] = msg });
         System.Console.WriteLine(result);
+    }
+
+    /// <summary>
+    /// 管道 现在已经废弃了，使用的是dump之前的SK库代码
+    /// https://learn.microsoft.com/en-us/semantic-kernel/ai-orchestration/plugins/out-of-the-box-plugins?tabs=Csharp#whats-the-ms-graph-connector-kit
+    /// </summary>
+    /// <returns></returns>
+    public async Task PipelineTest()
+    {
+        var textPlugin = kernel.ImportPluginFromType<TextPlugin>();
+        KernelFunction pipeline = KernelFunctionCombinators.Pipe(
+            [
+                textPlugin["TrimStart"], //清除左边空格
+                textPlugin["TrimEnd"], //清除右边空格
+                textPlugin["Uppercase"], //转大写
+            ],
+            "pipeline"
+        );
+        var res = await pipeline.InvokeAsync(
+            kernel,
+            new KernelArguments() { ["input"] = "     i n f i n i t e     s p a c e     " }
+        );
+        System.Console.WriteLine(res);
     }
 }

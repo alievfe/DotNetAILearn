@@ -19,5 +19,5 @@ var kernel = ConfigExtensions.GetKernel2("./tmpsecrets.json", "DouBao");
 
 // await new VectorStoresAndEmbeddingsTest(kernel).InMemoryEmbeddingTest();
 
-await new SKXZYTest(kernel).IntentTest("十一我要通知李四一起去北京");
+await new SKXZYTest(kernel).PipelineTest();
 Console.ReadLine();
