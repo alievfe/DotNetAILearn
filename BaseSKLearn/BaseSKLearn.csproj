@@ -31,19 +31,15 @@
       <None Update="Plugins\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="vec0.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 
 
     <ItemGroup>
       <ProjectReference Include="..\SKUtils\SKUtils.csproj" />
-    </ItemGroup>
-
-
-
-    <ItemGroup>
-      <Folder Include="Plugins\Common\" />
-      <Folder Include="Plugins\Common\GetIntent\" />
     </ItemGroup>
 
 </Project>
