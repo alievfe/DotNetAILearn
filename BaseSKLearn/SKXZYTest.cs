@@ -92,6 +92,7 @@ public class SKXZYTest(Kernel kernel)
 
     /// <summary>
     /// 计划测试
+    /// 分步和 Handlebars 规划器仍可在语义内核中使用。 但是，建议对大多数任务使用函数调用，因为它更强大且更易于使用。 后续版本的语义内核中将弃用分步和 Handlebars 规划器。
     /// </summary>
     /// <param name="msg">
     /// 案例输入：1.小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？
