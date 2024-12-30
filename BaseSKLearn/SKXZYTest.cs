@@ -1,10 +1,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using BaseSKLearn.Plugins;
 using BaseSKLearn.Plugins.MathPlg;
 using HandlebarsDotNet;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Planning.Handlebars;
+using Microsoft.SemanticKernel.Plugins.Core;
 
 namespace BaseSKLearn;
 
@@ -115,5 +117,71 @@ public class SKXZYTest(Kernel kernel)
 
         var res = await plan.InvokeAsync(kernel);
         System.Console.WriteLine(res);
+    }
+
+    /// <summary>
+    /// 意图识别和JSON提取案例
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <returns></returns>
+    public async Task IntentTest(string msg)
+    {
+        kernel.ImportPluginFromType<ConversationSummaryPlugin>();
+        var CommonPlugin = kernel.ImportPluginFromDefaultPathPromptDirectory("Common");
+        kernel.ImportPluginFromDefaultPathPromptDirectory("Travel");
+        kernel.ImportPluginFromType<MessageUtils>("MessageUtils");
+        var getIntentVariables = new KernelArguments
+        {
+            ["input"] = msg,
+            ["options"] = "Attractions, Delicacy,Traffic,Weather,SendEmail", //给GPT的意图，通过Prompt限定选用这些里面的
+        };
+        string intent = (await kernel.InvokeAsync(CommonPlugin["GetIntent"], getIntentVariables))
+            .ToString()
+            .Trim();
+        KernelFunction todoFunc;
+        //获取意图后动态调用Func
+        switch (intent)
+        {
+            case "Attractions":
+                todoFunc = kernel.Plugins.GetFunction("Travel", "Attractions");
+                break;
+
+            case "Delicacy":
+                todoFunc = kernel.Plugins.GetFunction("Travel", "Delicacy");
+                break;
+
+            case "Traffic":
+                todoFunc = kernel.Plugins.GetFunction("Travel", "Traffic");
+                break;
+
+            case "Weather":
+                todoFunc = kernel.Plugins.GetFunction("Travel", "Weather");
+                break;
+
+            case "SendEmail":
+                KernelArguments sendEmailVariables = new()
+                {
+                    ["input"] = msg,
+                    ["example"] = JsonSerializer.Serialize(
+                        new
+                        {
+                            send_user = "zhangsan",
+                            receiver_user = "lisi",
+                            body = "hello",
+                        }
+                    ),
+                };
+                msg = (
+                    await kernel.InvokeAsync(CommonPlugin["JSON"], sendEmailVariables)
+                ).ToString();
+                todoFunc = kernel.Plugins.GetFunction("MessageUtils", "SendEmail");
+                break;
+
+            default:
+                System.Console.WriteLine("我不知道");
+                return;
+        }
+        var result = await kernel.InvokeAsync(todoFunc, new KernelArguments() { ["input"] = msg });
+        System.Console.WriteLine(result);
     }
 }

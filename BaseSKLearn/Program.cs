@@ -7,15 +7,17 @@ using SKUtils;
 Console.WriteLine("Hello, World!");
 
 // var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "InternLM");
-var kernel = ConfigExtensions.GetKernel2("./tmpsecrets.json", "DeepSeek");
+var kernel = ConfigExtensions.GetKernel2("./tmpsecrets.json", "DouBao");
 // await new SKHelloWorld(kernel).Test();
-await new FunctionCallingTest(
-    kernel,
-    ConfigExtensions.GetWeatherAPI("./tmpsecrets.json")
-).AutoCall_Test();
+// await new FunctionCallingTest(
+//     kernel,
+//     ConfigExtensions.GetWeatherAPI("./tmpsecrets.json")
+// ).AutoCall_Test();
 
 // await new SKXZYTest(kernel).Translate("你好","EN");
 // await new SKXZYTest(kernel).PlanTest("小明有7个冰淇淋，我有2个冰淇淋，他比我多几个冰淇淋？");
 
-// await new VectorStoresAndEmbeddingsTest/**/(kernel).InMemoryEmbeddingTest();
+// await new VectorStoresAndEmbeddingsTest(kernel).InMemoryEmbeddingTest();
+
+await new SKXZYTest(kernel).IntentTest("十一我要通知李四一起去北京");
 Console.ReadLine();

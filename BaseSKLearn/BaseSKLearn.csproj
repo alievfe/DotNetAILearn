@@ -39,4 +39,11 @@
       <ProjectReference Include="..\SKUtils\SKUtils.csproj" />
     </ItemGroup>
 
+
+
+    <ItemGroup>
+      <Folder Include="Plugins\Common\" />
+      <Folder Include="Plugins\Common\GetIntent\" />
+    </ItemGroup>
+
 </Project>
