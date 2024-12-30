@@ -83,6 +83,23 @@ public static class ConfigExtensions
         return builder.Build();
     }
 
+        public static Kernel GetKernel2(
+        string jsonPath,
+        string chatModelName,
+        string? ebdModelName = null
+    )
+    {
+        var configRoot = LoadConfigFromJson(jsonPath);
+        var chatConfig = configRoot.GetSection(chatModelName).Get<OpenAIConfig>();
+        var builder = Kernel.CreateBuilder().AddOpenAIChatWithHttpClient(chatConfig);
+        if (ebdModelName != null)
+        {
+            var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
+            builder.AddOpenAIEmbedding(ebdConfig);
+        }
+        return builder.Build();
+    }
+
     public static Kernel GetKernelEmbedding(string jsonPath, string ebdModelName)
     {
         var config = GetConfig<OpenAIConfig>(jsonPath, ebdModelName);

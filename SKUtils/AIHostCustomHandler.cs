@@ -54,7 +54,7 @@ public partial class AIHostCustomHandler : HttpClientHandler
             }
         }
 
-         // Log the request URI and method
+        // Log the request URI and method
         Console.WriteLine($"Request: {request.Method} {request.RequestUri}");
 
         // Check if it's a POST request with JSON content
@@ -71,8 +71,10 @@ public partial class AIHostCustomHandler : HttpClientHandler
             Console.WriteLine($"Request Body: {requestBody}");
         }
 
-
         HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+        // Read the content of the POST response as a string
+        var responseBody = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response Body: {responseBody}");
         return response;
     }
 }

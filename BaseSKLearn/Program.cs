@@ -7,7 +7,7 @@ using SKUtils;
 Console.WriteLine("Hello, World!");
 
 // var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "InternLM");
-var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "Spark");
+var kernel = ConfigExtensions.GetKernel2("./tmpsecrets.json", "DeepSeek");
 // await new SKHelloWorld(kernel).Test();
 await new FunctionCallingTest(
     kernel,
