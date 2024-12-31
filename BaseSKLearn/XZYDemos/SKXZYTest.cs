@@ -7,6 +7,7 @@ using HandlebarsDotNet;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Planning.Handlebars;
 using Microsoft.SemanticKernel.Plugins.Core;
+using Microsoft.SemanticKernel.Text;
 using SKUtils.SKExtensions;
 
 namespace BaseSKLearn;
@@ -207,5 +208,14 @@ public class SKXZYTest(Kernel kernel)
             new KernelArguments() { ["input"] = "     i n f i n i t e     s p a c e     " }
         );
         System.Console.WriteLine(res);
+    }
+
+    public async Task TextChunkTest()
+    {
+        string msg = System.IO.File.ReadAllText("./Docs/诛仙.txt");
+        var lines = TextChunker.SplitPlainTextLines(msg, 40);
+        System.Console.WriteLine(JsonSerializer.Serialize(lines));
+        var paragraphs = TextChunker.SplitPlainTextParagraphs(lines, 4000);
+        System.Console.WriteLine(JsonSerializer.Serialize(paragraphs));
     }
 }
