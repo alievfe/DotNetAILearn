@@ -6,7 +6,7 @@ using Microsoft.SemanticKernel.Connectors.InMemory;
 using Microsoft.SemanticKernel.Embeddings;
 using SKUtils;
 
-namespace BaseSKLearn;
+namespace BaseSKLearn.SKOfficialDemos;
 
 public class VectorStoresAndEmbeddingsTest(Kernel kernel)
 {
