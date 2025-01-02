@@ -45,4 +45,10 @@
       <ProjectReference Include="..\SKUtils\SKUtils.csproj" />
     </ItemGroup>
 
+
+
+    <ItemGroup>
+      <Folder Include="SKOfficialDemos\GettingStarted\" />
+    </ItemGroup>
+
 </Project>
