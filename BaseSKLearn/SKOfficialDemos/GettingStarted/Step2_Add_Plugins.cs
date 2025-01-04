@@ -5,6 +5,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using SKUtils;
 using SKUtils.TestUtils;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BaseSKLearn.SKOfficialDemos.GettingStarted;
@@ -12,7 +13,8 @@ namespace BaseSKLearn.SKOfficialDemos.GettingStarted;
 /// <summary>
 /// 本示例展示了如何加载<see cref="KernelPlugin"/>实例。
 /// </summary>
-public sealed class Step2_Add_Plugins(ITestOutputHelper output) : BaseTest(output)
+public sealed class Step2_Add_Plugins
+// (ITestOutputHelper output) : BaseTest(output)
 {
     /// <summary>
     /// 展示了加载<see cref="KernelPlugin"/>实例的不同方法。
@@ -44,30 +46,28 @@ public sealed class Step2_Add_Plugins(ITestOutputHelper output) : BaseTest(outpu
         );
 
         // 示例3。使用提示调用内核，并允许AI自动调用函数
-        OpenAIPromptExecutionSettings settings = new()
-        {
-            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-        };
+        OpenAIPromptExecutionSettings settings =
+            new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(), };
         Console.WriteLine(
-            await kernel.InvokePromptAsync(
-                "现在距离圣诞节已经过去了多少天？ 解释你的想法。",
-                new(settings)
-            )
+            await kernel.InvokePromptAsync("今天距离圣诞节已经过去了多少天？ 解释你的想法。", new(settings))
         );
 
         // 示例4。使用提示调用内核，并允许AI自动调用使用枚举的函数
+        // Useful 随机颜色
         Console.WriteLine(
             await kernel.InvokePromptAsync(
                 "Create a handy lime colored widget for me.",
                 new(settings)
             )
         );
+        // Decorative 随机颜色
         Console.WriteLine(
             await kernel.InvokePromptAsync(
                 "Create a beautiful scarlet colored widget for me.",
                 new(settings)
             )
         );
+        // Decorative 两种颜色
         Console.WriteLine(
             await kernel.InvokePromptAsync(
                 "Create an attractive maroon and navy colored widget for me.",
@@ -79,17 +79,17 @@ public sealed class Step2_Add_Plugins(ITestOutputHelper output) : BaseTest(outpu
     /// <summary>
     /// 一个返回当前时间的插件。
     /// </summary>
-    public class TimeInformation
+    private class TimeInformation
     {
         [KernelFunction]
-        [Description("获取现在的UTC时间")]
+        [Description("获取今天现在的UTC时间")]
         public string GetCurrentUtcTime() => DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     /// <summary>
     /// 一个创建小部件的插件。
     /// </summary>
-    public class WidgetFactory
+    private class WidgetFactory
     {
         [KernelFunction]
         [Description("Creates a new widget of the specified type and colors")]
@@ -109,7 +109,7 @@ public sealed class Step2_Add_Plugins(ITestOutputHelper output) : BaseTest(outpu
     }
 
     /// <summary>
-    /// <see cref="JsonConverter"/> 用于转换枚举类型    
+    /// <see cref="JsonConverter"/> 用于转换枚举类型
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum WidgetType
