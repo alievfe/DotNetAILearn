@@ -19,7 +19,6 @@ public sealed class Step2_Add_Plugins
     /// <summary>
     /// 展示了加载<see cref="KernelPlugin"/>实例的不同方法。
     /// </summary>
-    [Fact]
     public async Task AddPluginsAsync()
     {
         // Create a kernel with OpenAI chat completion

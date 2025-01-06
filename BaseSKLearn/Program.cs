@@ -24,8 +24,9 @@ Console.WriteLine("Hello, World!");
 
 // await new VectorStoresAndEmbeddingsTest(kernel).InMemoryEmbeddingTest();
 // await SKMemoryXZYTest.DI();
-// await new Step1_Create_Kernel().CreateKernelAsync();
 
-await new Step2_Add_Plugins().AddPluginsAsync();
+// await new Step1_Create_Kernel().CreateKernelAsync();
+// await new Step2_Add_Plugins().AddPluginsAsync();
+await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
 
 Console.ReadLine();

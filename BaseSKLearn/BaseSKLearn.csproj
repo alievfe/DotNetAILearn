@@ -42,11 +42,14 @@
       <None Update="vec0.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Docs\**">
+      <None Update="Resources\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
-
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\GenerateStory.yaml" />
+      <EmbeddedResource Include="Resources\GenerateStoryHandlebars.yaml" />
+    </ItemGroup>
 
 
     <ItemGroup>
