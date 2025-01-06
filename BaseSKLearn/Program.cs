@@ -31,9 +31,12 @@ Console.WriteLine("Hello, World!");
 // await new Step2_Add_Plugins().AddPluginsAsync();
 // await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
 // await new Step6_Responsible_AI().AddPromptFilterAsync();
-await new Step7_Observability().ObservabilityWithFiltersAsync();
-
+// await new Step7_Observability().ObservabilityWithFiltersAsync();
+await new Step8_Pipelining().CreateFunctionPipelineAsync();
 Console.ReadLine();
+
+
+
 
 
 internal class Worker(
