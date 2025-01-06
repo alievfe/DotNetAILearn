@@ -18,7 +18,7 @@ public static class ConfigExtensions
     public static IConfigurationRoot LoadConfigFromSecrets<P>()
         where P : class => new ConfigurationBuilder().AddUserSecrets<P>().Build();
 
-    public static IConfigurationRoot LoadConfigFromJson(string jsonPath) =>
+    public static IConfigurationRoot LoadConfigFromJson(string jsonPath = "./tmpsecrets.json") =>
         new ConfigurationBuilder().AddJsonFile(jsonPath).Build();
 
     public static IKernelBuilder AddOpenAIChat(this IKernelBuilder builder, OpenAIConfig config)

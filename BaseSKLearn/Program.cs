@@ -4,6 +4,8 @@ using BaseSKLearn;
 using BaseSKLearn.Plugins.MathPlg;
 using BaseSKLearn.SKOfficialDemos.GettingStarted;
 using BaseSKLearn.XZYDemos;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using SKUtils;
 
@@ -27,6 +29,80 @@ Console.WriteLine("Hello, World!");
 
 // await new Step1_Create_Kernel().CreateKernelAsync();
 // await new Step2_Add_Plugins().AddPluginsAsync();
-await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
-
+// await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
+await new Step6_Responsible_AI().AddPromptFilterAsync();
 Console.ReadLine();
+
+
+internal class Worker(
+    IHostApplicationLifetime hostLifetime,
+    Kernel kernel
+) : IHostedService
+{
+    private int? _exitCode;
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            //
+            _exitCode = 0;
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine(ex);
+            _exitCode = 1;
+        }
+        finally
+        {
+            hostLifetime.StopApplication();
+        }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        Environment.ExitCode = _exitCode.GetValueOrDefault(-1);
+        return Task.CompletedTask;
+    }
+}
+
+public class DITest
+{
+    public static async Task DI()
+    {
+        await Host.CreateDefaultBuilder()
+            .ConfigureHostConfiguration(builder => { })
+            .ConfigureServices(
+                (hostContext, services) =>
+                {
+                    var chatConfig = ConfigExtensions.GetConfig<OpenAIConfig>(
+                        "./tmpsecrets.json",
+                        "DouBao"
+                    );
+                    var ebdConfig = ConfigExtensions.GetConfig<OpenAIConfig>(
+                        "./tmpsecrets.json",
+                        "DouBao-Ebd"
+                    );
+
+                    // 注册kernel
+                    services
+                        .AddKernel()
+                        .AddOpenAIChatCompletion(
+                            modelId: chatConfig.ModelId,
+                            apiKey: chatConfig.ApiKey,
+                            endpoint: chatConfig.Endpoint
+                        )
+                        .AddOpenAITextEmbeddingGeneration(
+                            modelId: ebdConfig.ModelId,
+                            apiKey: ebdConfig.ApiKey,
+                            httpClient: new HttpClient(new AIHostCustomHandler(ebdConfig.Host))
+                        );
+
+                    services.AddSqliteVectorStore("Data Source=E:/Develop/SqliteData/MyApp.db");
+
+                    services.AddHostedService<Worker>();
+                }
+            )
+            .RunConsoleAsync();
+    }
+}

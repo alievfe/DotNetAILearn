@@ -16,7 +16,6 @@ public sealed class Step4_Dependency_Injection
     /// <summary>
     /// 展示如何创建一个参与依赖注入的 <see cref="Kernel"/> 实例。
     /// </summary>
-    [Fact]
     public async Task GetKernelUsingDependencyInjectionAsync()
     {
         // 如果应用程序遵循DI准则，下面这行是不必要的，因为DI会将KernelClient类的一个实例注入到引用它的类中。
@@ -36,7 +35,6 @@ public sealed class Step4_Dependency_Injection
     /// <summary>
     /// 展示如何使用参与依赖注入的插件。
     /// </summary>
-    [Fact]
     public async Task PluginUsingDependencyInjectionAsync()
     {
         // 如果应用程序遵循DI准则，下面这行是不必要的，因为DI会将KernelClient类的一个实例注入到引用它的类中。
