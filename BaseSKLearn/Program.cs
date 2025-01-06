@@ -30,7 +30,9 @@ Console.WriteLine("Hello, World!");
 // await new Step1_Create_Kernel().CreateKernelAsync();
 // await new Step2_Add_Plugins().AddPluginsAsync();
 // await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
-await new Step6_Responsible_AI().AddPromptFilterAsync();
+// await new Step6_Responsible_AI().AddPromptFilterAsync();
+await new Step7_Observability().ObservabilityWithFiltersAsync();
+
 Console.ReadLine();
 
 
