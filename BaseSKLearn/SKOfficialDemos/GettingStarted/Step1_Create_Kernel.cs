@@ -19,7 +19,7 @@ public sealed class Step1_Create_Kernel(ITestOutputHelper output) : BaseTest(out
     public async Task CreateKernelAsync()
     {
         // 使用 OpenAI 聊天补全创建一个内核
-        var kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "DouBao");
+        var kernel = ConfigExtensions.GetKernel("DouBao");
 
         // 示例 1. 使用提示调用内核并显示结果
         Console.WriteLine(await kernel.InvokePromptAsync("天空是什么颜色的？"));

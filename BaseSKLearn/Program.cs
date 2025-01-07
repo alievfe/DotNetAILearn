@@ -32,12 +32,29 @@ Console.WriteLine("Hello, World!");
 // await new Step3_Yaml_Prompt().CreatePromptFromYamlAsync();
 // await new Step6_Responsible_AI().AddPromptFilterAsync();
 // await new Step7_Observability().ObservabilityWithFiltersAsync();
-await new Step8_Pipelining().CreateFunctionPipelineAsync();
+// await new Step8_Pipelining().CreateFunctionPipelineAsync();
+// await new Step9_OpenAPI_Plugins().AddOpenAPIPluginsAsync();
+await new Step9_OpenAPI_Plugins().TransformOpenAPIPluginsAsync();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Console.ReadLine();
-
-
-
-
 
 internal class Worker(
     IHostApplicationLifetime hostLifetime,

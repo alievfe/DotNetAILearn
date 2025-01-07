@@ -16,7 +16,7 @@ public sealed class Step3_Yaml_Prompt
     public async Task CreatePromptFromYamlAsync()
     {
         // 使用 OpenAI 的聊天完成功能创建内核
-        Kernel kernel = ConfigExtensions.GetKernel("./tmpsecrets.json", "DouBao");
+        Kernel kernel = ConfigExtensions.GetKernel("DouBao");
 
         // 从资源加载提示
         var generateStoryYaml = EmbeddedResource.Read("GenerateStory.yaml");
