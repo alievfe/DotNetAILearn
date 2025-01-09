@@ -38,7 +38,9 @@ Console.WriteLine("Hello, World!");
 // await new Step9_OpenAPI_Plugins().TransformOpenAPIPluginsAsync();
 // await new Step01_Agent().UseSingleChatComplectionAgentAsync();
 // await new Step01_Agent().UseTemplateForChatCompletionAgentAsync();
-await new Step02_Plugins().UseChatCompletionWithPluginAgentAsync();
+// await new Step02_Plugins().UseChatCompletionWithPluginAgentAsync();
+// await new Step03_Chat().UseAgentGroupChatWithTwoAgentsAsync();
+await new Step03_Chat().UseAgentGroupChatWithTwoAgentsForCNAsync();
 
 
 
