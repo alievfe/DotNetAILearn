@@ -8,7 +8,7 @@ namespace BaseSKLearn.SKOfficialDemos.GettingStarted;
 
 public class Step6_Responsible_AI
 {
-        /// <summary>
+    /// <summary>
     /// 展示如何使用提示过滤器来确保提示以负责任的方式呈现。
     /// </summary>
     public async Task AddPromptFilterAsync()
@@ -31,13 +31,17 @@ public class Step6_Responsible_AI
 
         KernelArguments arguments = new() { { "card_number", "4444 3333 2222 1111" } };
 
-        var result = await kernel.InvokePromptAsync("请告诉我关于这个信用卡号 {{$card_number}} 的一些有用信息？", arguments);
+        var result = await kernel.InvokePromptAsync(
+            "请告诉我关于这个信用卡号 {{$card_number}} 的一些有用信息？",
+            arguments
+        );
 
         Console.WriteLine(result);
 
         // 输出：对不起，但我无法提供帮助。
     }
 }
+
 internal sealed class PromptFilter : IPromptRenderFilter
 {
     /// <summary>

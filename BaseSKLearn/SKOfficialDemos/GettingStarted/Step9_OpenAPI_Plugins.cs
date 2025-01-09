@@ -11,6 +11,9 @@ namespace BaseSKLearn.SKOfficialDemos.GettingStarted;
 /// </summary>
 public class Step9_OpenAPI_Plugins
 {
+    /// <summary>
+    /// 基本使用
+    /// </summary>
     public async Task AddOpenAPIPluginsAsync()
     {
         var kernel = ConfigExtensions.GetKernel("DouBao");
@@ -102,7 +105,7 @@ public class Step9_OpenAPI_Plugins
     /// <summary>
     /// 创建一个用于 createRepair 操作的 <see cref="KernelFunction"/> 实例，该实例只接收
     /// title 和 description 参数，并且有一个委托使用 IMechanicService 来获取 assignedTo。
-    /// 相当于和原先引入openapi中的createRepair减少了几个参数 
+    /// 相当于和原先引入openapi中的createRepair减少了几个参数
     /// </summary>
     public static KernelFunction CreateRepairFunction(KernelFunction function) =>
         KernelFunctionFactory.CreateFromMethod(

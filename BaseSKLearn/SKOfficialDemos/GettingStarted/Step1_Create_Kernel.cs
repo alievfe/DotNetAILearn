@@ -32,7 +32,10 @@ public sealed class Step1_Create_Kernel(ITestOutputHelper output) : BaseTest(out
 
         // 示例 3. 使用模板化提示调用内核并将结果流式传输到显示
         await foreach (
-            var update in kernel.InvokePromptStreamingAsync("{{$topic}} 是什么颜色的？请提供详细解释。", arguments)
+            var update in kernel.InvokePromptStreamingAsync(
+                "{{$topic}} 是什么颜色的？请提供详细解释。",
+                arguments
+            )
         )
         {
             Console.Write(update);
@@ -45,7 +48,9 @@ public sealed class Step1_Create_Kernel(ITestOutputHelper output) : BaseTest(out
         {
             { "topic", "狗" },
         };
-        Console.WriteLine(await kernel.InvokePromptAsync("给我讲一个关于 {{$topic}} 的故事", arguments));
+        Console.WriteLine(
+            await kernel.InvokePromptAsync("给我讲一个关于 {{$topic}} 的故事", arguments)
+        );
 
         // 示例 5. 使用模板化提示和配置为返回 JSON 的执行设置调用内核
         arguments = new(new OpenAIPromptExecutionSettings { ResponseFormat = "json_object" })

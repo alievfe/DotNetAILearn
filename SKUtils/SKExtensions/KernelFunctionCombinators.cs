@@ -3,6 +3,9 @@ using Microsoft.SemanticKernel;
 
 namespace SKUtils.SKExtensions;
 
+/// <summary>
+/// 函数管道编排器
+/// </summary>
 public static class KernelFunctionCombinators
 {
     /// <summary>

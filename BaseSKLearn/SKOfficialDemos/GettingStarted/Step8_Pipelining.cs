@@ -78,7 +78,7 @@ public class Step8_Pipelining
                 [(rand, "i"), (rand, "j"), (mult, "")],
                 "graph"
             );
-        Console.WriteLine(await graph.InvokeAsync(kernel));
+            Console.WriteLine(await graph.InvokeAsync(kernel));
         }
     }
 }

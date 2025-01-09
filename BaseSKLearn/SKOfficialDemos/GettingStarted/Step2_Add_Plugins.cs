@@ -45,10 +45,15 @@ public sealed class Step2_Add_Plugins
         );
 
         // 示例3。使用提示调用内核，并允许AI自动调用函数
-        OpenAIPromptExecutionSettings settings =
-            new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(), };
+        OpenAIPromptExecutionSettings settings = new()
+        {
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+        };
         Console.WriteLine(
-            await kernel.InvokePromptAsync("今天距离圣诞节已经过去了多少天？ 解释你的想法。", new(settings))
+            await kernel.InvokePromptAsync(
+                "今天距离圣诞节已经过去了多少天？ 解释你的想法。",
+                new(settings)
+            )
         );
 
         // 示例4。使用提示调用内核，并允许AI自动调用使用枚举的函数

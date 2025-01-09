@@ -25,8 +25,12 @@ public sealed class Step4_Dependency_Injection
 
         // 使用模板提示调用内核，并将结果流式传输到显示设备
         KernelArguments arguments = new() { { "topic", "从太空看地球" } };
-        await foreach (var update in
-                       kernel.InvokePromptStreamingAsync("{{$topic}}是什么颜色？请提供详细的解释。", arguments))
+        await foreach (
+            var update in kernel.InvokePromptStreamingAsync(
+                "{{$topic}}是什么颜色？请提供详细的解释。",
+                arguments
+            )
+        )
         {
             Console.Write(update);
         }
@@ -42,7 +46,10 @@ public sealed class Step4_Dependency_Injection
         var kernel = serviceProvider.GetRequiredService<Kernel>();
 
         // 调用依赖于通过依赖注入提供的服务的插件提示。
-        PromptExecutionSettings settings = new() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
+        PromptExecutionSettings settings = new()
+        {
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+        };
         Console.WriteLine(await kernel.InvokePromptAsync("按照名字问候当前用户。", new(settings)));
     }
 
@@ -55,7 +62,10 @@ public sealed class Step4_Dependency_Injection
         collection.AddSingleton<IUserService>(new FakeUserService());
 
         var kernelBuilder = collection.AddKernel();
-        var chatConfig = ConfigExtensions.LoadConfigFromJson("./tmpsecrets.json").GetSection("DouBao").Get<OpenAIConfig>();
+        var chatConfig = ConfigExtensions
+            .LoadConfigFromJson("./tmpsecrets.json")
+            .GetSection("DouBao")
+            .Get<OpenAIConfig>();
         kernelBuilder.Services.AddOpenAIChatCompletion(chatConfig.ModelId, chatConfig.ApiKey);
         kernelBuilder.Plugins.AddFromType<TimeInformation>();
         kernelBuilder.Plugins.AddFromType<UserInformation>();
