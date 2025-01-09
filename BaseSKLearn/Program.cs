@@ -3,6 +3,7 @@ using System.Text.Json;
 using BaseSKLearn;
 using BaseSKLearn.Plugins.MathPlg;
 using BaseSKLearn.SKOfficialDemos.GettingStarted;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithAgents;
 using BaseSKLearn.XZYDemos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,7 +35,9 @@ Console.WriteLine("Hello, World!");
 // await new Step7_Observability().ObservabilityWithFiltersAsync();
 // await new Step8_Pipelining().CreateFunctionPipelineAsync();
 // await new Step9_OpenAPI_Plugins().AddOpenAPIPluginsAsync();
-await new Step9_OpenAPI_Plugins().TransformOpenAPIPluginsAsync();
+// await new Step9_OpenAPI_Plugins().TransformOpenAPIPluginsAsync();
+// await new Step01_Agent().UseSingleChatComplectionAgentAsync();
+await new Step01_Agent().UseTemplateForChatCompletionAgentAsync();
 
 
 
