@@ -41,7 +41,10 @@ Console.WriteLine("Hello, World!");
 // await new Step02_Plugins().UseChatCompletionWithPluginAgentAsync();
 // await new Step03_Chat().UseAgentGroupChatWithTwoAgentsAsync();
 // await new Step03_Chat().UseAgentGroupChatWithTwoAgentsForCNAsync();
-await new Step04_KernelFunctionStrategies().UseKernelFunctionStrategiesWithAgentGroupChatAsync();
+// await new Step04_KernelFunctionStrategies().UseKernelFunctionStrategiesWithAgentGroupChatAsync();
+await new Step05_JsonResult().UseKernelFunctionStrategiesWithJsonResultAsync();
+
+
 
 
 
@@ -135,3 +138,4 @@ public class DITest
             .RunConsoleAsync();
     }
 }
+//
