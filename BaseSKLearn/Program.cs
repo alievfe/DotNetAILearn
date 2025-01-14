@@ -42,7 +42,8 @@ Console.WriteLine("Hello, World!");
 // await new Step03_Chat().UseAgentGroupChatWithTwoAgentsAsync();
 // await new Step03_Chat().UseAgentGroupChatWithTwoAgentsForCNAsync();
 // await new Step04_KernelFunctionStrategies().UseKernelFunctionStrategiesWithAgentGroupChatAsync();
-await new Step05_JsonResult().UseKernelFunctionStrategiesWithJsonResultAsync();
+// await new Step05_JsonResult().UseKernelFunctionStrategiesWithJsonResultAsync();
+// await new Step06_DependencyInjection().UseDependencyInjectionToCreateAgentAsync();
 
 
 
