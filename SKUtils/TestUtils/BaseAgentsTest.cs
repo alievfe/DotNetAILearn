@@ -1,3 +1,4 @@
+using System.ClientModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Microsoft.SemanticKernel;
@@ -28,6 +29,21 @@ public abstract class BaseAgentsTest(ITestOutputHelper output)
         new Dictionary<string, string> { { AssistantSampleMetadataKey, bool.TrueString } }
     );
 
+    /// <summary>
+    /// 根配置获得OpenAIClientProvider，但是由于没有openai这里用doubao实际是不可行的
+    /// </summary>
+    /// <param name="provider"></param>
+    /// <param name="GetClientProvider("></param>
+    /// <returns></returns>
+    protected (OpenAIClientProvider provider, string modelId) GetClientProvider()
+    {
+        var chatConfig = ConfigExtensions.GetConfig<OpenAIConfig>("./tmpsecrets.json", "DouBao");
+        var provider = OpenAIClientProvider.ForOpenAI(
+            new ApiKeyCredential(chatConfig.ApiKey),
+            httpClient: new HttpClient(new AIHostCustomHandler(chatConfig.Host))
+        );
+        return (provider, chatConfig.ModelId);
+    }
     /// <summary>
     /// 将格式化的代理聊天内容写入控制台的通用方法。
     /// </summary>

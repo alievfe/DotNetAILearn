@@ -44,7 +44,7 @@ Console.WriteLine("Hello, World!");
 // await new Step04_KernelFunctionStrategies().UseKernelFunctionStrategiesWithAgentGroupChatAsync();
 // await new Step05_JsonResult().UseKernelFunctionStrategiesWithJsonResultAsync();
 // await new Step06_DependencyInjection().UseDependencyInjectionToCreateAgentAsync();
-
+// await new Step08_Assistant().UseChatCompletionWithPluginAgentAsync();
 
 
 
