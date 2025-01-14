@@ -56,4 +56,9 @@
       <ProjectReference Include="..\SKUtils\SKUtils.csproj" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <Folder Include="SKOfficialDemos\GettingStartedWithProcesses\" />
+    </ItemGroup>
+
 </Project>
