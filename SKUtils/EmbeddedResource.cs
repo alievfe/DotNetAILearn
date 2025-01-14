@@ -36,7 +36,7 @@ public static class EmbeddedResource
         return reader.ReadToEnd();
     }
 
-    internal static Stream? ReadStream(string fileName)
+    public static Stream? ReadStream(string fileName)
     {
         // 获取当前程序集。注意：此类位于存储嵌入资源的同一个程序集中。
         Assembly assembly =

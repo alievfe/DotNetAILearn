@@ -141,8 +141,4 @@ public class Step08_Assistant(ITestOutputHelper output) : BaseAgentsTest(output)
         [KernelFunction, Description("提供所请求菜单项的价格。")]
         public string GetItemPrice([Description("菜单项的名称。")] string menuItem) => "¥28.00";
     }
-
-    protected static readonly ReadOnlyDictionary<string, string> AssistantSampleMetadata = new(
-        new Dictionary<string, string> { { "sksample", bool.TrueString } }
-    );
 }
