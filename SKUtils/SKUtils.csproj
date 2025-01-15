@@ -20,6 +20,8 @@
       <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.33.0-preview" />
       <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.33.0-preview" />
       <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.33.0-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Process.Core" Version="1.33.0-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Process.LocalRuntime" Version="1.33.0-alpha" />
       <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.33.0" />
       <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.33.0" />
       <PackageReference Include="coverlet.collector" Version="6.0.2" />
