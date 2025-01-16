@@ -6,6 +6,7 @@ using BaseSKLearn.SKOfficialDemos.GettingStarted;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithAgents;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step00;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step01;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step02;
 using BaseSKLearn.XZYDemos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,7 +49,8 @@ Console.WriteLine("Hello, World!");
 // await new Step06_DependencyInjection().UseDependencyInjectionToCreateAgentAsync();
 // await new Step08_Assistant().UseChatCompletionWithPluginAgentAsync();
 // await new Step00_Processes().UseSimplestProcessAsync();
-await new Step01_Processes().UseSimpleProcessAsync();
+// await new Step01_Processes().UseSimpleProcessAsync();
+await new Step02a_AccountOpening().UseAccountOpeningProcessSuccessfulInteractionAsync();
 
 
 
