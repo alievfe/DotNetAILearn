@@ -14,16 +14,24 @@ public class CRMRecordCreationStep : KernelProcessStep
     }
 
     [KernelFunction(Functions.CreateCRMEntry)]
-    public async Task CreateCRMEntryAsync(KernelProcessStepContext context, AccountUserInteractionDetails userInteractionDetails, Kernel _kernel)
+    public async Task CreateCRMEntryAsync(
+        KernelProcessStepContext context,
+        AccountUserInteractionDetails userInteractionDetails,
+        Kernel _kernel
+    )
     {
         // 记录CRM条目创建日志信息。
-        Console.WriteLine($"[CRM ENTRY CREATION] New Account {userInteractionDetails.AccountId} created");
+        Console.WriteLine(
+            $"[CRM ENTRY CREATION] New Account {userInteractionDetails.AccountId} created"
+        );
 
         // 调用API创建新的CRM条目（此处为占位符）。
-        await context.EmitEventAsync(new()
-        {
-            Id = AccountOpeningEvents.CRMRecordInfoEntryCreated,
-            Data = true  // 这里使用布尔值true作为示例数据，实际应用中可能需要更详细的信息。
-        });
+        await context.EmitEventAsync(
+            new()
+            {
+                Id = AccountOpeningEvents.CRMRecordInfoEntryCreated,
+                Data = true, // 这里使用布尔值true作为示例数据，实际应用中可能需要更详细的信息。
+            }
+        );
     }
 }

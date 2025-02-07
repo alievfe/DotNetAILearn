@@ -50,7 +50,8 @@ Console.WriteLine("Hello, World!");
 // await new Step08_Assistant().UseChatCompletionWithPluginAgentAsync();
 // await new Step00_Processes().UseSimplestProcessAsync();
 // await new Step01_Processes().UseSimpleProcessAsync();
-await new Step02a_AccountOpening().UseAccountOpeningProcessSuccessfulInteractionAsync();
+// await new Step02a_AccountOpening().UseAccountOpeningProcessSuccessfulInteractionAsync();
+await new Step02b_AccountOpening().UseAccountOpeningProcessFailureDueToCreditScoreFailureAsync();
 
 
 
