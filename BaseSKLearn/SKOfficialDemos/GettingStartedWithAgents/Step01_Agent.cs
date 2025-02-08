@@ -25,7 +25,7 @@ public class Step01_Agent
         {
             Name = ParrotName,
             Instructions = ParrotInstructions,
-            Kernel = ConfigExtensions.GetKernel("DouBao"),
+            Kernel = ConfigExtensions.GetKernel2("DouBao"),
         };
         ChatHistory chat = [];
         // 响应用户输入

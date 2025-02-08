@@ -56,7 +56,6 @@ public partial class AIHostCustomHandler : HttpClientHandler
 
         // Log the request URI and method
         Console.WriteLine($"Request: {request.Method} {request.RequestUri}");
-
         // Check if it's a POST request with JSON content
         if (request.Method == HttpMethod.Post && request.Content != null)
         {

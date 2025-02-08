@@ -25,7 +25,7 @@ public class Step02_Plugins
         {
             Instructions = HostInstructions,
             Name = HostName,
-            Kernel = ConfigExtensions.GetKernel("DeepSeek"),
+            Kernel = ConfigExtensions.GetKernel2("Spark"),
             Arguments = new KernelArguments(
                 new OpenAIPromptExecutionSettings()
                 {

@@ -84,9 +84,9 @@ public static class ConfigExtensions
     }
 
         public static Kernel GetKernel2(
-        string jsonPath,
         string chatModelName,
-        string? ebdModelName = null
+        string? ebdModelName = null,
+        string jsonPath = "./tmpsecrets.json"
     )
     {
         var configRoot = LoadConfigFromJson(jsonPath);
