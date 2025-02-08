@@ -7,6 +7,7 @@ using BaseSKLearn.SKOfficialDemos.GettingStartedWithAgents;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step00;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step01;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step02;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step03;
 using BaseSKLearn.XZYDemos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,9 +52,15 @@ Console.WriteLine("Hello, World!");
 // await new Step00_Processes().UseSimplestProcessAsync();
 // await new Step01_Processes().UseSimpleProcessAsync();
 // await new Step02a_AccountOpening().UseAccountOpeningProcessSuccessfulInteractionAsync();
-await new Step02b_AccountOpening().UseAccountOpeningProcessFailureDueToCreditScoreFailureAsync();
-
-
+// await new Step02b_AccountOpening().UseAccountOpeningProcessFailureDueToCreditScoreFailureAsync();
+// await new Step03a_FoodPreparation().UsePrepareFriedFishProcessAsync();
+// await new Step03a_FoodPreparation().UsePreparePotatoFriesProcessAsync();
+// await new Step03a_FoodPreparation().UsePrepareFishSandwichProcessAsync();
+// await new Step03a_FoodPreparation().UsePrepareFishAndChipsProcessAsync();
+// await new Step03a_FoodPreparation().UsePrepareStatefulFriedFishProcessNoSharedStateAsync();
+// await new Step03a_FoodPreparation().UsePrepareStatefulFriedFishProcessSharedStateAsync();
+// await new Step03a_FoodPreparation().RunAndStoreStatefulFriedFishProcessStateAsync();
+await new Step03a_FoodPreparation().RunAndStoreStatefulFishSandwichProcessStateAsync();
 
 
 
