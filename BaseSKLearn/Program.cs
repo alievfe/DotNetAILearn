@@ -60,7 +60,8 @@ Console.WriteLine("Hello, World!");
 // await new Step03a_FoodPreparation().UsePrepareStatefulFriedFishProcessNoSharedStateAsync();
 // await new Step03a_FoodPreparation().UsePrepareStatefulFriedFishProcessSharedStateAsync();
 // await new Step03a_FoodPreparation().RunAndStoreStatefulFriedFishProcessStateAsync();
-await new Step03a_FoodPreparation().RunAndStoreStatefulFishSandwichProcessStateAsync();
+// await new Step03a_FoodPreparation().RunAndStoreStatefulFishSandwichProcessStateAsync();
+await new Step03b_FoodOrdering().UseSingleOrderFishAndChipsAsync();
 
 
 
