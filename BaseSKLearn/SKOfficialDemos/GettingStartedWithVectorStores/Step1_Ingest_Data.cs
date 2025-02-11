@@ -64,21 +64,21 @@ public class Step1_Ingest_Data
             Term = "API",
             Definition = "应用程序编程接口。一组规则和规范，允许软件组件进行通信和交换数据。",
         };
-        yield return new Glossary
-        {
-            Key = "2",
-            Category = "软件",
-            Term = "SDK",
-            Definition = "软件开发工具包。一组库和工具，使软件开发人员能够更轻松地构建软件。",
-        };
-        yield return new Glossary
-        {
-            Key = "3",
-            Category = "语义内核",
-            Term = "连接器",
-            Definition =
-                "语义内核连接器允许软件开发人员与提供人工智能功能的各种服务集成，包括大语言模型、语音转文本、文本转语音、嵌入向量生成等。",
-        };
+        //yield return new Glossary
+        //{
+        //    Key = "2",
+        //    Category = "软件",
+        //    Term = "SDK",
+        //    Definition = "软件开发工具包。一组库和工具，使软件开发人员能够更轻松地构建软件。",
+        //};
+        //yield return new Glossary
+        //{
+        //    Key = "3",
+        //    Category = "语义内核",
+        //    Term = "连接器",
+        //    Definition =
+        //        "语义内核连接器允许软件开发人员与提供人工智能功能的各种服务集成，包括大语言模型、语音转文本、文本转语音、嵌入向量生成等。",
+        //};
         //yield return new Glossary
         //{
         //    Key = "4",
@@ -87,20 +87,20 @@ public class Step1_Ingest_Data
         //    Definition =
         //        "语义内核是一组库，使软件开发人员能够更轻松地开发利用人工智能体验的应用程序。",
         //};
-        yield return new Glossary
-        {
-            Key = "5",
-            Category = "人工智能",
-            Term = "RAG",
-            Definition =
-                "检索增强生成 - 一个术语，指的是检索额外数据以作为上下文提供给大语言模型，以便在生成对用户问题（提示）的响应（完成结果）时使用的过程。",
-        };
-        yield return new Glossary
-        {
-            Key = "6",
-            Category = "人工智能",
-            Term = "大语言模型",
-            Definition = "大型语言模型。一种人工智能算法，旨在理解和生成人类语言。",
-        };
+        //yield return new Glossary
+        //{
+        //    Key = "5",
+        //    Category = "人工智能",
+        //    Term = "RAG",
+        //    Definition =
+        //        "检索增强生成 - 一个术语，指的是检索额外数据以作为上下文提供给大语言模型，以便在生成对用户问题（提示）的响应（完成结果）时使用的过程。",
+        //};
+        //yield return new Glossary
+        //{
+        //    Key = "6",
+        //    Category = "人工智能",
+        //    Term = "大语言模型",
+        //    Definition = "大型语言模型。一种人工智能算法，旨在理解和生成人类语言。",
+        //};
     }
 }
