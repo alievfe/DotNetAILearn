@@ -10,6 +10,7 @@ public partial class AIHostCustomHandler : HttpClientHandler
     private readonly string _baseUrl;
     private readonly string _complectionPath = "/chat/completions";
     private readonly string _embeddingPath = "/embeddings";
+    private readonly bool _isLog;
 
     [GeneratedRegex(@"/v\d$")]
     private static partial Regex VersionPattern();
@@ -20,7 +21,7 @@ public partial class AIHostCustomHandler : HttpClientHandler
     /// 使用指定的模型URL初始化<see cref="AIHostCustomHandler"/>类的新实例。
     /// </summary>
     /// <param name="baseUrl">用于OpenAI或Azure OpenAI请求的基础URL。</param>
-    public AIHostCustomHandler(string baseUrl)
+    public AIHostCustomHandler(string baseUrl, bool isLog = false)
     {
         if (string.IsNullOrWhiteSpace(baseUrl))
             throw new ArgumentException("模型URL不能为空或空白。", nameof(baseUrl));
@@ -30,6 +31,7 @@ public partial class AIHostCustomHandler : HttpClientHandler
             baseUrl += "/v1";
         }
         _baseUrl = baseUrl;
+        _isLog = isLog;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -55,25 +57,33 @@ public partial class AIHostCustomHandler : HttpClientHandler
         }
 
         // Log the request URI and method
-        Console.WriteLine($"Request: {request.Method} {request.RequestUri}");
+        ConsoleWrite($"Request: {request.Method} {request.RequestUri}");
         // Check if it's a POST request with JSON content
         if (request.Method == HttpMethod.Post && request.Content != null)
         {
             // Get the Bearer token from the Authorization header
             if (request.Headers.Authorization?.Scheme == "Bearer")
             {
-                Console.WriteLine($"Bearer Token: {request.Headers.Authorization.Parameter}");
+                ConsoleWrite($"Bearer Token: {request.Headers.Authorization.Parameter}");
             }
 
             // Read the content of the POST request as a string
             var requestBody = await request.Content.ReadAsStringAsync();
-            Console.WriteLine($"Request Body: {requestBody}");
+            ConsoleWrite($"Request Body: {requestBody}");
         }
 
         HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
         // Read the content of the POST response as a string
         var responseBody = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Response Body: {responseBody}");
+        ConsoleWrite($"Response Body: {responseBody}");
         return response;
+    }
+
+    private void ConsoleWrite(string? value)
+    {
+        if (_isLog)
+            Console.WriteLine(value);
+        else
+            return;
     }
 }

@@ -1,7 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.SemanticKernel;
+using SKUtils;
+using System.ComponentModel;
 using System.Text.Json;
 using BaseSKLearn;
 using BaseSKLearn.Plugins.MathPlg;
+using BaseSKLearn.XZYDemos;
 using BaseSKLearn.SKOfficialDemos.GettingStarted;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithAgents;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step00;
@@ -9,14 +14,9 @@ using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step01;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step02;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step03;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step05;
-
-//using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step04;
-using BaseSKLearn.XZYDemos;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.SemanticKernel;
-using SKUtils;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step04;
 using Step04;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithVectorStores;
 
 Console.WriteLine("Hello, World!");
 
@@ -67,7 +67,8 @@ Console.WriteLine("Hello, World!");
 // await new Step03a_FoodPreparation().RunAndStoreStatefulFishSandwichProcessStateAsync();
 // await new Step03b_FoodOrdering().UseSingleOrderFishAndChipsAsync();
 // await new Step04_AgentOrchestration().DelegatedGroupChatAsync();
-await new Step05_MapReduce().RunMapReduceAsync(); 
+//await new Step05_MapReduce().RunMapReduceAsync(); 
+await new Step1_Ingest_Data().IngestDataIntoInMemoryVectorStoreAsync();
 
 
 

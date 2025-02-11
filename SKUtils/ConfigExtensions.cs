@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace SKUtils;
 
@@ -83,7 +84,7 @@ public static class ConfigExtensions
         return builder.Build();
     }
 
-        public static Kernel GetKernel2(
+    public static Kernel GetKernel2(
         string chatModelName,
         string? ebdModelName = null,
         string jsonPath = "./tmpsecrets.json"
@@ -105,6 +106,16 @@ public static class ConfigExtensions
         var config = GetConfig<OpenAIConfig>(jsonPath, ebdModelName);
         var builder = Kernel.CreateBuilder().AddOpenAIEmbedding(config);
         return builder.Build();
+    }
+
+    public static OpenAITextEmbeddingGenerationService GetEbdService(string ebdModelName)
+    {
+        var ebdConfig = LoadConfigFromJson().GetSection(ebdModelName).Get<OpenAIConfig>();
+        return new OpenAITextEmbeddingGenerationService(
+            modelId: ebdConfig.ModelId,
+            apiKey: ebdConfig.ApiKey,
+            httpClient: new HttpClient(new AIHostCustomHandler(ebdConfig.Host))
+        );
     }
 
     public static WeatherAPI GetWeatherAPI(string jsonPath) =>
