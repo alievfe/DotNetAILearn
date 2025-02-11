@@ -11,19 +11,20 @@
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-      <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.24523.1" />
-      <PackageReference Include="Microsoft.SemanticKernel" Version="1.33.0" />
-      <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.33.0-alpha" />
-      <PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.33.0-alpha" />
-      <PackageReference Include="Microsoft.SemanticKernel.Plugins.OpenApi" Version="1.33.0-preview" />
-      <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.33.0-preview" />
-      <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.33.0-preview" />
-      <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.33.0-preview" />
-      <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.33.0-alpha" />
-      <PackageReference Include="Microsoft.SemanticKernel.Process.Core" Version="1.33.0-alpha" />
-      <PackageReference Include="Microsoft.SemanticKernel.Process.LocalRuntime" Version="1.33.0-alpha" />
-      <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.33.0" />
-      <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.33.0" />
+      <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.25078.1" />
+      <PackageReference Include="Microsoft.SemanticKernel" Version="1.36.0" />
+      <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.36.1-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.36.1-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Plugins.OpenApi" Version="1.36.1" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.36.1-preview" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.36.1-preview" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.Redis" Version="1.36.1-preview" />
+      <PackageReference Include="Microsoft.SemanticKernel.Planners.Handlebars" Version="1.36.1-preview" />
+      <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.36.1-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Process.Core" Version="1.36.1-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.Process.LocalRuntime" Version="1.36.1-alpha" />
+      <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.36.1" />
+      <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.36.1" />
       <PackageReference Include="coverlet.collector" Version="6.0.2" />
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
       <PackageReference Include="PuppeteerSharp" Version="20.0.5" />

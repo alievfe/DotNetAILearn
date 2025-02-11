@@ -2,6 +2,7 @@ using System.ClientModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.Agents.OpenAI;
 using Microsoft.SemanticKernel.ChatCompletion;
 using OpenAI.Assistants;

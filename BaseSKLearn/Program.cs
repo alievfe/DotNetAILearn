@@ -70,7 +70,8 @@ Console.WriteLine("Hello, World!");
 //await new Step05_MapReduce().RunMapReduceAsync(); 
 //await new Step1_Ingest_Data().IngestDataIntoInMemoryVectorStoreAsync();
 //await new Step2_Vector_Search().SearchAnInMemoryVectorStoreAsync();
-await new Step2_Vector_Search().SearchAnInMemoryVectorStoreWithFilteringAsync();
+//await new Step2_Vector_Search().SearchAnInMemoryVectorStoreWithFilteringAsync();
+await new Step3_Switch_VectorStore().UseARedisVectorStoreAsync();
 
 
 
