@@ -108,7 +108,7 @@ public static class ConfigExtensions
         return builder.Build();
     }
 
-    public static OpenAITextEmbeddingGenerationService GetEbdService(string ebdModelName)
+    public static OpenAITextEmbeddingGenerationService GetEbdService(string ebdModelName = "DouBao-Ebd")
     {
         var ebdConfig = LoadConfigFromJson().GetSection(ebdModelName).Get<OpenAIConfig>();
         return new OpenAITextEmbeddingGenerationService(

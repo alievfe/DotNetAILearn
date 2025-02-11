@@ -68,7 +68,9 @@ Console.WriteLine("Hello, World!");
 // await new Step03b_FoodOrdering().UseSingleOrderFishAndChipsAsync();
 // await new Step04_AgentOrchestration().DelegatedGroupChatAsync();
 //await new Step05_MapReduce().RunMapReduceAsync(); 
-await new Step1_Ingest_Data().IngestDataIntoInMemoryVectorStoreAsync();
+//await new Step1_Ingest_Data().IngestDataIntoInMemoryVectorStoreAsync();
+//await new Step2_Vector_Search().SearchAnInMemoryVectorStoreAsync();
+await new Step2_Vector_Search().SearchAnInMemoryVectorStoreWithFilteringAsync();
 
 
 
