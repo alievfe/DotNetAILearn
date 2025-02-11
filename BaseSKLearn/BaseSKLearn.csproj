@@ -5,7 +5,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <NoWarn>SKEXP0001,SKEXP0010,SKEXP0110,OPENAI001,SKEXP0080</NoWarn>
+        <NoWarn>SKEXP0001,SKEXP0010,SKEXP0110,OPENAI001,SKEXP0080,SKEXP0050</NoWarn>
       <UserSecretsId>2da3581f-d340-43eb-955b-9f7bcb4bd181</UserSecretsId>
   </PropertyGroup>
 
