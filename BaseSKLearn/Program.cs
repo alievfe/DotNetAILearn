@@ -71,7 +71,8 @@ Console.WriteLine("Hello, World!");
 //await new Step1_Ingest_Data().IngestDataIntoInMemoryVectorStoreAsync();
 //await new Step2_Vector_Search().SearchAnInMemoryVectorStoreAsync();
 //await new Step2_Vector_Search().SearchAnInMemoryVectorStoreWithFilteringAsync();
-await new Step3_Switch_VectorStore().UseARedisVectorStoreAsync();
+//await new Step3_Switch_VectorStore().UseARedisVectorStoreAsync();
+await new Step4_NonStringKey_VectorStore().UseAQdrantVectorStoreAsync();
 
 
 
