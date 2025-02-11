@@ -8,6 +8,8 @@ using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step00;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step01;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step02;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step03;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step05;
+
 //using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step04;
 using BaseSKLearn.XZYDemos;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,8 +66,8 @@ Console.WriteLine("Hello, World!");
 // await new Step03a_FoodPreparation().RunAndStoreStatefulFriedFishProcessStateAsync();
 // await new Step03a_FoodPreparation().RunAndStoreStatefulFishSandwichProcessStateAsync();
 // await new Step03b_FoodOrdering().UseSingleOrderFishAndChipsAsync();
-await new Step04_AgentOrchestration().DelegatedGroupChatAsync();
-
+// await new Step04_AgentOrchestration().DelegatedGroupChatAsync();
+await new Step05_MapReduce().RunMapReduceAsync(); 
 
 
 
