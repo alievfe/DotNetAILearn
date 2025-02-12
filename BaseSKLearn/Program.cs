@@ -17,6 +17,8 @@ using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step05;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithProcesses.Step04;
 using Step04;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithVectorStores;
+using System.Diagnostics;
+using SKUtils.Web;
 
 Console.WriteLine("Hello, World!");
 
@@ -72,8 +74,21 @@ Console.WriteLine("Hello, World!");
 //await new Step2_Vector_Search().SearchAnInMemoryVectorStoreAsync();
 //await new Step2_Vector_Search().SearchAnInMemoryVectorStoreWithFilteringAsync();
 //await new Step3_Switch_VectorStore().UseARedisVectorStoreAsync();
-await new Step4_NonStringKey_VectorStore().UseAQdrantVectorStoreAsync();
+//await new Step4_NonStringKey_VectorStore().UseAQdrantVectorStoreAsync();
 
+
+using (var searcher = new BingSearchTest())
+{
+    var results = await searcher.SearchAsync("python", 10, true);
+
+    Console.WriteLine($"Search results (total {results.Count} items):");
+    foreach (var result in results)
+    {
+        Console.WriteLine($"{result.Rank}. {result.Title}");
+        Console.WriteLine($"   {result.Abstract}");
+        Console.WriteLine($"   {result.Url}\n");
+    }
+}
 
 
 
