@@ -19,6 +19,10 @@ using Step04;
 using BaseSKLearn.SKOfficialDemos.GettingStartedWithVectorStores;
 using System.Diagnostics;
 using SKUtils.Web;
+using Microsoft.Playwright;
+using HtmlAgilityPack;
+using System.Web;
+using System;
 
 Console.WriteLine("Hello, World!");
 
@@ -77,20 +81,35 @@ Console.WriteLine("Hello, World!");
 //await new Step4_NonStringKey_VectorStore().UseAQdrantVectorStoreAsync();
 
 
-using (var searcher = new BingSearchTest())
-{
-    var results = await searcher.SearchAsync("python", 10, true);
 
-    Console.WriteLine($"Search results (total {results.Count} items):");
-    foreach (var result in results)
-    {
-        Console.WriteLine($"{result.Rank}. {result.Title}");
-        Console.WriteLine($"   {result.Abstract}");
-        Console.WriteLine($"   {result.Url}\n");
-    }
+using var bingSearch = new BingSearchTest();
+var results = await bingSearch.SearchAsync("我草泥马", 15);
+
+foreach (var result in results)
+{
+    Console.WriteLine($"Rank: {result.Rank}");
+    Console.WriteLine($"Title: {result.Title}");
+    Console.WriteLine($"URL: {result.Url}");
+    Console.WriteLine($"Abstract: {result.Abstract}\n");
 }
 
 
+//// 在搜索框中输入关键词
+//await page.FillAsync("#kw", "Playwright");
+//// 点击搜索按钮
+//await page.ClickAsync("#su");
+
+//// 等待搜索结果页面加载完成
+//await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+//// 获取搜索结果的标题
+//var resultTitles = await page.QuerySelectorAllAsync(".result.c-container h3");
+//foreach (var title in resultTitles)
+//{
+//    // 输出搜索结果的标题
+//    var text = await title.InnerTextAsync();
+//    System.Console.WriteLine(text);
+//}
 
 
 

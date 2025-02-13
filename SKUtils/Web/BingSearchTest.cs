@@ -4,29 +4,31 @@ using Microsoft.Playwright;
 
 namespace SKUtils.Web;
 
+public class SearchResult
+{
+    public int Rank { get; set; }
+    public string Title { get; set; }
+    public string Url { get; set; }
+    public string Abstract { get; set; }
+}
+
 public class BingSearchTest : IDisposable
 {
-    private const string BingSearchUrl = "https://www.bing.com/search?";
-    private const string BingHostUrl = "https://www.bing.com";
-    private const int AbstractMaxLength = 500;
-
     private IPlaywright _playwright;
     private IBrowser _browser;
 
     public BingSearchTest()
     {
-        Initialize().Wait();
-    }
-
-    private async Task Initialize()
-    {
-        _playwright = await Playwright.CreateAsync();
-        _browser = await _playwright.Chromium.LaunchAsync();
+        _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
+        _browser = _playwright
+            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false })
+            .GetAwaiter()
+            .GetResult();
     }
 
     public async Task<List<SearchResult>> SearchAsync(
         string keyword,
-        int numResults = 10,
+        int numResults = 30,
         bool debug = false
     )
     {
@@ -37,101 +39,102 @@ public class BingSearchTest : IDisposable
 
         var page = await _browser.NewPageAsync();
 
-        try
+        while (results.Count < numResults)
         {
-            while (results.Count < numResults)
+            var queryParams = new Dictionary<string, string>
             {
-                var queryParams = new Dictionary<string, string>
-                {
-                    { "q", keyword },
-                    { "FPIG", Guid.NewGuid().ToString("N") },
-                    { "first", results.Count.ToString() },
-                    { "FORM", "PORE" },
-                };
+                { "q", keyword },
+                { "FPIG", Guid.NewGuid().ToString("N") },
+                { "first", results.Count.ToString() },
+                { "FORM", "PORE" },
+            };
+            string url = "https://cn.bing.com/search?" + UrlEncode(queryParams);
 
-                var searchUrl = BingSearchUrl + BuildQueryString(queryParams);
-                await page.GotoAsync(searchUrl);
-
+            try
+            {
+                await page.GotoAsync(
+                    url,
+                    new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle }
+                );
+                await page.ReloadAsync();
                 var content = await page.ContentAsync();
-                var doc = new HtmlDocument();
-                doc.LoadHtml(content);
 
-                var resultsContainer = doc.DocumentNode.SelectSingleNode("//main[@id='b_results']");
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(content);
 
-                if (resultsContainer == null)
+                var bResults = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_results']");
+                if (bResults == null)
                 {
-                    Console.WriteLine("No search results found.");
+                    if (debug)
+                        Console.WriteLine("No search results found.");
                     break;
                 }
 
-                foreach (var li in resultsContainer.ChildNodes)
+                var resultItems = bResults.SelectNodes("./li[contains(@class, 'b_algo')]");
+                if (resultItems == null || !resultItems.Any())
                 {
-                    if (!li.HasClass("b_algo"))
-                        continue;
+                    if (debug)
+                        Console.WriteLine("No result items on current page.");
+                    break;
+                }
 
+                foreach (var li in resultItems)
+                {
                     var titleNode = li.SelectSingleNode(".//h2/a");
-                    var urlNode = li.SelectSingleNode(".//div[@class='b_tpcn']/a");
-                    var abstractNode = li.SelectSingleNode(".//div[@class='b_caption']");
+                    var urlNode = li.SelectSingleNode(".//div[contains(@class, 'b_tpcn')]//a");
+                    var abstractNode = li.SelectSingleNode(".//div[contains(@class, 'b_caption')]");
 
-                    if (titleNode == null || urlNode == null || abstractNode == null)
+                    string title = titleNode?.InnerText.Trim();
+                    string iurl = urlNode?.GetAttributeValue("href", "").Trim();
+                    string abstractText = abstractNode?.InnerText.Trim();
+
+                    if (string.IsNullOrEmpty(title))
+                        continue;
+                    if (string.IsNullOrEmpty(iurl))
                         continue;
 
-                    var result = new SearchResult
-                    {
-                        Rank = results.Count + 1,
-                        Title = HttpUtility.HtmlDecode(titleNode.InnerText).Trim(),
-                        Url = urlNode.GetAttributeValue("href", ""),
-                        Abstract = TruncateAbstract(
-                            HttpUtility.HtmlDecode(abstractNode.InnerText).Trim()
-                        ),
-                    };
+                    //if (abstractText?.Length > 500)
+                        //abstractText = abstractText.Substring(0, 500);
 
-                    results.Add(result);
+                    results.Add(
+                        new SearchResult
+                        {
+                            Rank = results.Count + 1,
+                            Title = title,
+                            Url = iurl,
+                            Abstract = abstractText ?? "",
+                        }
+                    );
 
                     if (results.Count >= numResults)
                         break;
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            if (debug)
-                Console.WriteLine($"Error during search: {ex.Message}");
-        }
-        finally
-        {
-            await page.CloseAsync();
+            catch (Exception ex)
+            {
+                if (debug)
+                    Console.WriteLine($"Error: {ex.Message}");
+                break;
+            }
         }
 
         return results.Take(numResults).ToList();
     }
 
-    private string TruncateAbstract(string text)
-    {
-        return text.Length <= AbstractMaxLength
-            ? text
-            : text.Substring(0, AbstractMaxLength) + "...";
-    }
-
-    private string BuildQueryString(Dictionary<string, string> parameters)
+    private string UrlEncode(Dictionary<string, string> parameters)
     {
         return string.Join(
             "&",
-            parameters.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}")
+            parameters.Select(kvp =>
+                $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"
+            )
         );
     }
 
     public void Dispose()
     {
-        _browser?.CloseAsync().Wait();
+        _browser?.CloseAsync()?.GetAwaiter().GetResult();
+        _browser?.DisposeAsync().GetAwaiter().GetResult();
         _playwright?.Dispose();
     }
-}
-
-public class SearchResult
-{
-    public int Rank { get; set; }
-    public string Title { get; set; }
-    public string Url { get; set; }
-    public string Abstract { get; set; }
 }
