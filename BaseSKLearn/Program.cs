@@ -23,6 +23,7 @@ using Microsoft.Playwright;
 using HtmlAgilityPack;
 using System.Web;
 using System;
+using System.Text.Encodings.Web;
 
 Console.WriteLine("Hello, World!");
 
@@ -83,15 +84,13 @@ Console.WriteLine("Hello, World!");
 
 
 using var bingSearch = new BingSearchTest();
-var results = await bingSearch.SearchAsync("我草泥马", 15);
+var results = await bingSearch.SearchAsync("python", 15);
 
-foreach (var result in results)
+Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
 {
-    Console.WriteLine($"Rank: {result.Rank}");
-    Console.WriteLine($"Title: {result.Title}");
-    Console.WriteLine($"URL: {result.Url}");
-    Console.WriteLine($"Abstract: {result.Abstract}\n");
-}
+    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    WriteIndented = true
+}));
 
 
 //// 在搜索框中输入关键词

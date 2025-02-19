@@ -1,0 +1,174 @@
+{
+  "code": 200,
+  "log_id": "cd63d5203dc215c4",
+  "msg": null,
+  "data": {
+    "_type": "SearchResponse",
+    "queryContext": {
+      "originalQuery": "python"
+    },
+    "webPages": {
+      "webSearchUrl": "https://bochaai.com/search?q=python",
+      "totalEstimatedMatches": 4347259,
+      "value": [
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.0",
+          "name": "Python 基础教程",
+          "url": "https://m.runoob.com/python/python-tutorial.html",
+          "displayUrl": "https://m.runoob.com/python/python-tutorial.html",
+          "snippet": "Python 是一种解释型、面向对象、动态数据类型的高级程序设计语言。Python 由 Guido van Rossum 于 1989 年底发明，第一个公开发行版发行于 1991 年。像 Perl 语言一样, Python 源代码同样...",
+          "summary": "Python  基础教程\nPython 是一种解释型、面向对象、动态数据类型的高级程序设计语言。\nPython 由 Guido van Rossum 于 1989 年底发明，第一个公开发行版发行于 1991 年。\n像 Perl 语言一样, Python 源代码同样遵循 GPL(GNU General Public License) 协议。\n官方宣布，2020 年 1 月 1 日， 停止 Python 2 的更新。\nPython 2.7 被确定为最后一个 Python 2.x 版本。\n谁适合阅读本教程？\n 本教程适合想从零开始学习 Python 编程语言的开发人员。当然本教程也会对一些模块进行深入，让你更好的了解 Python 的应用。\n本教程主要针对 Python 2.x 版本的学习，如果你使用的是 Python 3.x 版本请移步至 Python 3.X 版本的教程 。\n本教程所有实例基于 Python2.7。\n学习本教程前你需要了解\n 在继续本教程之前，你应该了解一些基本的计算机编程术语。如果你学习过 PHP，ASP 等编程语言，将有助于你更快的了解 Python 编程。\n执行Python程序\n 对于大多数程序语言，第一个入门编程代码便是 \"Hello World！\"，以下代码为使用 Python 输出 \"Hello World！\"：\n实例\n#!/usr/bin/python print ( \" Hello, World! \" )\n运行实例 »\nPython 3.0+ 版本已经把 print 作...",
+          "siteName": "m.runoob.com",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://m.runoob.com/python/python-tutorial.html",
+          "dateLastCrawled": "2019-01-02T00:00:00Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.1",
+          "name": "Python计算机编程语言",
+          "url": "https://baike.baidu.com/item/python/407313",
+          "displayUrl": "https://baike.baidu.com/item/python/407313",
+          "snippet": "Python由荷兰国家数学与计算机科学研究中心的吉多·范罗苏姆于1990年代初设计，作为一门叫做ABC语言的替代品。Python提供了高效的高级数据结构，还能简单有效地面向对象编程。Python语法和动态类型，以及解释型语言的本质，使它成为多数平台上写脚本和快速开发应用的编程语言，随着版本的不断更新和语言新功能的添加，逐渐被用于独立的、大型项目的开发。Python在各个编程语言中比较适合新手学习，Python解释器易于扩展，可以使用C、C++或其他可以通过C调用的语言扩展新的功能和数据类型。Python也可用于可定制化软件中的扩展程序语言。Python丰富的标准库，提供了适用于各个主要系统平台的源码或机器码。",
+          "summary": "Python由荷兰国家数学与计算机科学研究中心的吉多·范罗苏姆于1990年代初设计，作为一门叫做ABC语言的替代品。Python提供了高效的高级数据结构，还能简单有效地面向对象编程。Python语法和动态类型，以及解释型语言的本质，使它成为多数平台上写脚本和快速开发应用的编程语言，随着版本的不断更新和语言新功能的添加，逐渐被用于独立的、大型项目的开发。Python在各个编程语言中比较适合新手学习，Python解释器易于扩展，可以使用C、C++或其他可以通过C调用的语言扩展新的功能和数据类型。Python也可用于可定制化软件中的扩展程序语言。Python丰富的标准库，提供了适用于各个主要系统平台的源码或机器码。",
+          "siteName": "baike.baidu.com",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://baike.baidu.com/item/python/407313",
+          "dateLastCrawled": "1970-01-01T08:00:00Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.2",
+          "name": "Python 教程",
+          "url": "https://docs.python.org/zh-cn/3/tutorial/index.html",
+          "displayUrl": "https://docs.python.org/zh-cn/3/tutorial/index.html",
+          "snippet": "Python 官网（ https://www.python.org/）上免费提供了 Python 解释器和扩展的标准库，包括源码和适用于各操作系统的机器码形式，并可自由地分发。",
+          "summary": "¶\nPython 是一门易于学习、功能强大的编程语言。它提供了高效的高级数据结构，还能简单有效地面向对象编程。Python 优雅的语法和动态类型以及解释型语言的本质，使它成为多数平台上写脚本和快速开发应用的理想语言。\nPython 官网（ https://www.python.org/ ）上免费提供了 Python 解释器和扩展的标准库，包括源码和适用于各操作系统的机器码形式，并可自由地分发。Python 官网还包含许多免费的第三方 Python 模块、程序和工具发布包及文档链接。\nPython 解释器易于扩展，使用 C 或 C++（或其他 C 能调用的语言）即可为 Python 扩展新功能和数据类型。Python 也可用作定制软件中的扩展程序语言。\n本教程只是简单介绍了 Python 语言概念和功能。读者在阅读本教程时最好使用 Python 解释器以便随时动手练习。本教程中的所有示例都是相互独立的并可离线阅读。\n标准库与模块的内容详见  Python 标准库 。 Python 语言参考手册  是更正规的语言定义。如要编写 C 或 C++ 扩展请参考  扩展和嵌入 Python 解释器  和  Python/C API 参考手册 。此外，深入讲解 Python 的书籍也有很多。\n本教程对每一个功能的介绍并不完整，甚至没有涉及全部常用功能，只是介绍了 Python 中最值得学习的功能，旨在让读者快速感受一下 Python 的特色。学完本教程的读者可以阅读和编写 Python 模块和程序，也可以继续学习...",
+          "siteName": "docs.python.org",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://docs.python.org/zh-cn/3/tutorial/index.html",
+          "dateLastCrawled": "2024-10-11T03:37:42Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.3",
+          "name": "Download Python|Python.org",
+          "url": "https://www.python.org/downloads/",
+          "displayUrl": "https://www.python.org/downloads/",
+          "snippet": "The official home of the Python Programming Language",
+          "summary": "The official home of the Python Programming Language",
+          "siteName": "www.python.org",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://www.python.org/downloads/",
+          "dateLastCrawled": "2025-02-17T10:31:36Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.4",
+          "name": "python是什么",
+          "url": "https://baijiahao.baidu.com/s?id=1780090079806833668",
+          "displayUrl": "https://baijiahao.baidu.com/s?id=1780090079806833668",
+          "snippet": "Python是一种编程语言，它在近年来迅速崛起，成为了的编程语言之一。企业名片那么，Python究竟是干嘛的呢？它有哪些特点和应用领域呢？本文将为大家详...",
+          "summary": "Python是什么？\nPython是一种编程语言，它在近年来迅速崛起，成为了的编程语言之一。\n企业名片\n那么，Python究竟是干嘛的呢？\n它有哪些特点和应用领域呢？\n本文将为大家详细介绍Python的用途和特点。\n一、Python的特点\n1. 简洁易学：Python语法简单明了，代码简洁易读，适合初学者快速上手。\n与其他编程语言相比，Python的代码量更少，写出的代码更加紧凑。\n2. 开放性和可移植性：Python是一种开源语言，任何人都可以使用和修改它的源代码。\n同时，Python可以在不同的操作系统上运行，如Windows、Linux和MacOS等，具有很高的可移植性。\n3. 强大的库和框架支持：Python拥有丰富的库和框架，如NumPy、Pandas、Django等，这些库和框架可以使者更加高效地完成各种任务，如数据分析、Web等。\n4. 大量的第三方工具支持：Python拥有强大的第三方工具支持，如PyCharm、Jupyter Notebook等，这些工具可以帮助者提高编码效率和调试能力。\n5. 跨平台性：Python可以在不同的平台上运行，这使得者可以更加便捷地和部署应用程序。\n二、Python的应用领域\n1. 数据分析与计算：Python拥有强大的数据处理和计算能力，被广泛应用于数据分析、人工智能、机器学习等领域。\nNumPy、Pandas和Matplotlib等库提供了丰富的数据处理和可视化功能，使得Python成为数据分析的工具。\n2. Web：Python的Web框架Dja...",
+          "siteName": "百家号",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://baijiahao.baidu.com/s?id=1780090079806833668",
+          "dateLastCrawled": "2023-10-18T18:49:57Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.5",
+          "name": "Python 标准库",
+          "url": "https://docs.python.org/zh-cn/3/library/index.html",
+          "displayUrl": "https://docs.python.org/zh-cn/3/library/index.html",
+          "snippet": "Python 语言参考手册 描述了 Python 语言的具体语法和语义，这份库参考则介绍了与 Python 一同发行的标准库。它还描述了通常包含在 Python 发行版中的一些可选组件。Python 标准库非常庞大，所提供的组件涉及...",
+          "summary": "Python 标准库 \nPython 语言参考手册  描述了 Python 语言的具体语法和语义，这份库参考则介绍了与 Python 一同发行的标准库。它还描述了通常包含在 Python 发行版中的一些可选组件。\nPython 标准库非常庞大，所提供的组件涉及范围十分广泛，正如以下内容目录所显示的。这个库包含了多个内置模块 (以 C 编写)，Python 程序员必须依靠它们来实现系统级功能，例如文件 I/O，此外还有大量以 Python 编写的模块，提供了日常编程中许多问题的标准解决方案。其中有些模块经过专门设计，通过将特定平台功能抽象化为平台中立的 API 来鼓励和加强 Python 程序的可移植性。\nWindows 版本的 Python 安装程序通常包含整个标准库，往往还包含许多额外组件。对于类 Unix 操作系统，Python 通常会分成一系列的软件包，因此可能需要使用操作系统所提供的包管理工具来获取部分或全部可选组件。\n在标准库以外，还存在成千上万并且不断增加的其他组件集（从单独的程序和模块到软件包以及完整的应用程序开发框架），这些组件集可以从  Python 包索引  获取。\n概述\n可用性注释\n内置函数 内置常量\n由  site  模块添加的常量\n内置类型\n逻辑值检测 布尔运算 ---  and ,  or ,  not 比较运算 数字类型 ---  int ,  float ,  complex 布尔类型 -  bool 迭代器类型 序列类型 ---  list ,  tuple ,  ...",
+          "siteName": "docs.python.org",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://docs.python.org/zh-cn/3/library/index.html",
+          "dateLastCrawled": "2025-02-18T12:23:38Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        },
+        {
+          "id": "https://api.bochaai.com/v1/#WebPages.6",
+          "name": "python",
+          "url": "https://www.python.org/",
+          "displayUrl": "https://www.python.org/",
+          "snippet": "MoreWeb Development : Django , Pyramid , Bottle , Tornado , Flask , web2py GUI Development : tkInter , PyGObject , PyQt , PySide , Kivy , wxPython , DearPyGui Scientific and Numeric : SciPy , Pandas , IPython Software Development : Buildbot , Trac...",
+          "summary": ">>> def fib(n): >>>     a, b = 0, 1 >>>     while a < n: >>>         print(a, end=' ') >>>         a, b = b, a+b >>>     print() >>> fib(1000)  0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987\nFunctions Defined\nThe core of extensible programming is defining functions. Python allows mandatory and optional arguments, keyword arguments, and even arbitrary argument lists.  More about defining functions in Python 3\nPython is a programming language that lets you work quickly  and integrate systems more effectively.  \nGet Started\nWhether you're new to programming or an experienced developer, it's easy to learn and use Python.\nStart with our Beginner’s Guide\nD...",
+          "siteName": "www.python.org",
+          "siteIcon": "https://th.bochaai.com/favicon?domain_url=https://www.python.org/",
+          "dateLastCrawled": "2025-02-11T00:00:00Z",
+          "cachedPageUrl": null,
+          "language": null,
+          "isFamilyFriendly": null,
+          "isNavigational": null
+        }
+      ],
+      "someResultsRemoved": true
+    },
+    "images": {
+      "id": null,
+      "readLink": null,
+      "webSearchUrl": null,
+      "value": [
+        {
+          "webSearchUrl": null,
+          "name": null,
+          "thumbnailUrl": "http://www.runoob.com/wp-content/uploads/2013/11/python.jpg",
+          "datePublished": null,
+          "contentUrl": "http://www.runoob.com/wp-content/uploads/2013/11/python.jpg",
+          "hostPageUrl": "https://m.runoob.com/python/python-tutorial.html",
+          "contentSize": null,
+          "encodingFormat": null,
+          "hostPageDisplayUrl": "https://m.runoob.com/python/python-tutorial.html",
+          "width": 220,
+          "height": 150,
+          "thumbnail": null
+        },
+        {
+          "webSearchUrl": null,
+          "name": null,
+          "thumbnailUrl": "http://s2.zimgs.cn/ims?at=smstruct&kt=url&key=aHR0cHM6Ly9ia2ltZy5jZG4uYmNlYm9zLmNvbS9waWMvYjAzNTMzZmE4MjhiYTYxZWE4ZDNjOGY2MjI3ZjgwMGEzMDRlMjQxZmYzOWQ_eC1iY2UtcHJvY2Vzcz1pbWFnZS9yZXNpemUsbV9sZml0LHdfNTM2LGxpbWl0XzEvcXVhbGl0eSxRXzcw&sign=yx:aDjgJ_ziF2F6s1wIICuGrEef5AQ=&tv=0_0&p=",
+          "datePublished": null,
+          "contentUrl": "http://s2.zimgs.cn/ims?at=smstruct&kt=url&key=aHR0cHM6Ly9ia2ltZy5jZG4uYmNlYm9zLmNvbS9waWMvYjAzNTMzZmE4MjhiYTYxZWE4ZDNjOGY2MjI3ZjgwMGEzMDRlMjQxZmYzOWQ_eC1iY2UtcHJvY2Vzcz1pbWFnZS9yZXNpemUsbV9sZml0LHdfNTM2LGxpbWl0XzEvcXVhbGl0eSxRXzcw&sign=yx:aDjgJ_ziF2F6s1wIICuGrEef5AQ=&tv=0_0&p=",
+          "hostPageUrl": "https://baike.baidu.com/item/python/407313",
+          "contentSize": null,
+          "encodingFormat": null,
+          "hostPageDisplayUrl": "https://baike.baidu.com/item/python/407313",
+          "width": 0,
+          "height": 0,
+          "thumbnail": null
+        },
+        {
+          "webSearchUrl": null,
+          "name": null,
+          "thumbnailUrl": "http://peco-img.uc.cn/image/quark_baike/upload/2021/dRzCLN1fausitkg/855ffff6cd09c710e5ee5c2ac308b455.jpg",
+          "datePublished": null,
+          "contentUrl": "http://peco-img.uc.cn/image/quark_baike/upload/2021/dRzCLN1fausitkg/855ffff6cd09c710e5ee5c2ac308b455.jpg",
+          "hostPageUrl": "https://www.python.org/",
+          "contentSize": null,
+          "encodingFormat": null,
+          "hostPageDisplayUrl": "https://www.python.org/",
+          "width": 394,
+          "height": 288,
+          "thumbnail": null
+        }
+      ],
+      "isFamilyFriendly": null
+    },
+    "videos": null
+  }
+}
