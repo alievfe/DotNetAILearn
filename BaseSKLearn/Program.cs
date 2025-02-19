@@ -93,25 +93,6 @@ Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
 }));
 
 
-//// 在搜索框中输入关键词
-//await page.FillAsync("#kw", "Playwright");
-//// 点击搜索按钮
-//await page.ClickAsync("#su");
-
-//// 等待搜索结果页面加载完成
-//await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-
-//// 获取搜索结果的标题
-//var resultTitles = await page.QuerySelectorAllAsync(".result.c-container h3");
-//foreach (var title in resultTitles)
-//{
-//    // 输出搜索结果的标题
-//    var text = await title.InnerTextAsync();
-//    System.Console.WriteLine(text);
-//}
-
-
-
 
 
 

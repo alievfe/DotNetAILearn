@@ -1,9 +1,6 @@
 ﻿using System.Web;
 using HtmlAgilityPack;
 using Microsoft.Playwright;
-using Microsoft.VisualBasic;
-using static System.Net.WebRequestMethods;
-using static Google.Protobuf.Reflection.UninterpretedOption.Types;
 
 namespace SKUtils.Web;
 
@@ -20,6 +17,7 @@ public class SearchResult
 }
 
 /*
+TODO: 筛选查询
  24小时
 
 filters=ex1%3a"ez1"
@@ -54,7 +52,7 @@ public class BingSearchTest : IDisposable
     {
         _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
         _browser = _playwright
-            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false })
+            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true })
             .GetAwaiter()
             .GetResult();
     }
@@ -86,15 +84,32 @@ public class BingSearchTest : IDisposable
 
             try
             {
-                await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                var content = await page.ContentAsync();
-                if (content.Length < 100)
+                string? content = null;
+                try
                 {
-                    await page.ReloadAsync(
-                        new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle }
-                    );
+                    await page.GotoAsync(url, new PageGotoOptions
+                    {
+                        WaitUntil = WaitUntilState.NetworkIdle,
+                        Timeout = 2500
+                    });
+                    content = await page.ContentAsync();
+                    if (content.Length < 100)
+                    {
+                        await page.ReloadAsync(
+                            new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 2500 }
+                        );
+                        content = await page.ContentAsync();
+                    }
+                }
+                catch (TimeoutException)
+                {
                     content = await page.ContentAsync();
                 }
+                catch (Exception)
+                {
+                    throw;
+                }
+
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(content);
 
@@ -166,8 +181,7 @@ public class BingSearchTest : IDisposable
             }
             catch (Exception ex)
             {
-                if (debug)
-                    Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Error: {ex}");
                 break;
             }
         }
