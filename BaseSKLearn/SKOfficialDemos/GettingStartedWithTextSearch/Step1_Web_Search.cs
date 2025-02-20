@@ -20,7 +20,7 @@ public class Step1_Web_Search
         // 使用必应搜索创建一个 ITextSearch 实例
         var textSearch = new ShaBingSearch();
 
-        var query = "什么是语义内核？";
+        var query = "我又幻想了是什么梗？";
 
         // 进行搜索并返回结果
         KernelSearchResults<string> searchResults = await textSearch.SearchAsync(

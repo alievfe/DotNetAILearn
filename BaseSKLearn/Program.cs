@@ -84,16 +84,19 @@ Console.WriteLine("Hello, World!");
 
 
 
-//using var bingSearch = new ShaBingSearchCore();
-//var results = await bingSearch.ExecuteSearchAsync("python", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 15});
+using var bingSearch = new ShaBingSearchCore();
+//var results = await bingSearch.ExecuteSearchAsync("我又幻想了是什么梗？", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 3 });
+var results = await bingSearch.ExecuteSearchAsync("nmsl是什么网络用语", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 3 });
 
-//Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
-//{
-//    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-//    WriteIndented = true
-//}));
+Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
+{
+    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    WriteIndented = true
+}));
 
-await new Step1_Web_Search().SearchForTextSearchResultsAsync();
+//await new Step1_Web_Search().ShaBingSearchAsync();
+//await new Step1_Web_Search().SearchForTextSearchResultsAsync();
+//await new Step2_Search_For_RAG().RagWithTextSearchAsync();
 
 
 
