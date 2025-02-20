@@ -6,7 +6,7 @@ namespace SKUtils.Web;
 /// <summary>
 /// Sha Bing 搜索响应。
 /// </summary>
-internal sealed class ShaBingSearchResponse<T>
+public sealed class ShaBingSearchResponse<T>
 {
     /// <summary>
     /// 类型提示，设置为 SearchResponse。
@@ -30,7 +30,7 @@ internal sealed class ShaBingSearchResponse<T>
 /// <summary>
 /// Sha Bing 用于请求的查询字符串。
 /// </summary>
-internal sealed class ShaBingQueryContext
+public sealed class ShaBingQueryContext
 {
     /// <summary>
     /// 请求中指定的查询字符串。
@@ -53,7 +53,7 @@ internal sealed class ShaBingQueryContext
 /// 与搜索查询相关的网页列表。
 /// </summary>
 #pragma warning disable CA1056 // 无法按照此类要求定义常量 Uri
-internal sealed class ShaBingWebPages<T>
+public sealed class ShaBingWebPages<T>
 {
     /// <summary>
     /// 唯一标识网页搜索结果的 ID。

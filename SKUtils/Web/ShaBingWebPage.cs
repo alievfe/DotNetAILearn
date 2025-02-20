@@ -15,26 +15,6 @@ public sealed class ShaBingWebPage
     internal ShaBingWebPage() { }
 
     /// <summary>
-    /// Bing 最后一次爬取该网页的时间。
-    /// </summary>
-    /// <remarks>
-    /// 日期格式为 YYYY-MM-DDTHH:MM:SS。例如，2015-04-13T05:23:39。
-    /// </remarks>
-    [JsonPropertyName("dateLastCrawled")]
-    public string? DateLastCrawled { get; set; }
-
-    /// <summary>
-    /// 网页的显示 URL。
-    /// </summary>
-    /// <remarks>
-    /// 此 URL 仅用于显示目的，格式可能不正确。
-    /// </remarks>
-    [JsonPropertyName("displayUrl")]
-#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
-    public string? DisplayUrl { get; set; }
-#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
-
-    /// <summary>
     /// 此网页在网页搜索结果列表中的唯一标识符。
     /// </summary>
     /// <remarks>
@@ -54,10 +34,15 @@ public sealed class ShaBingWebPage
     public string? Name { get; set; }
 
     /// <summary>
-    /// 描述网页内容的网页文本片段。
+    /// 网页的显示 URL。
     /// </summary>
-    [JsonPropertyName("snippet")]
-    public string? Snippet { get; set; }
+    /// <remarks>
+    /// 此 URL 仅用于显示目的，格式可能不正确。
+    /// </remarks>
+    [JsonPropertyName("displayUrl")]
+#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
+    public string? DisplayUrl { get; set; }
+#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
 
     /// <summary>
     /// 网页的 URL。
@@ -66,7 +51,50 @@ public sealed class ShaBingWebPage
     /// 将此 URL 与 name 一起使用，创建一个超链接，用户点击该链接即可访问该网页。
     /// </remarks>
     [JsonPropertyName("url")]
-#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
+#pragma warning disable CA1056
     public string? Url { get; set; }
-#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
+#pragma warning restore CA1056
+
+    /// <summary>
+    /// 描述网页内容的网页文本片段。
+    /// </summary>
+    [JsonPropertyName("snippet")]
+    public string? Snippet { get; set; }
+
+    /// <summary>
+    /// 网页所在网站名称
+    /// </summary>
+    [JsonPropertyName("siteName")]
+    public string? SiteName { get; set; }
+
+    /// <summary>
+    /// 网页图标url
+    /// </summary>
+    /// <remarks>
+    /// 可能无法获取成功
+    /// </remarks>
+    [JsonPropertyName("siteIcon")]
+#pragma warning disable CA1056
+    public string? SiteIcon { get; set; }
+#pragma warning restore CA1056
+
+    /// <summary>
+    /// 网页展示图片url
+    /// </summary>
+    /// <remarks>
+    /// 可能无法获取成功
+    /// </remarks>
+    [JsonPropertyName("siteImage")]
+#pragma warning disable CA1056
+    public string? SiteImage { get; set; }
+#pragma warning restore CA1056
+
+    /// <summary>
+    /// Bing 最后一次爬取该网页的时间。
+    /// </summary>
+    /// <remarks>
+    /// 日期格式为 YYYY-MM-DDTHH:MM:SS。例如，2015-04-13T05:23:39。
+    /// </remarks>
+    [JsonPropertyName("dateLastCrawled")]
+    public string? DateLastCrawled { get; set; }
 }

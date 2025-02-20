@@ -2,6 +2,8 @@
 using System.Net;
 using System.Web;
 using AngleSharp.Html.Parser;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Playwright;
 using Microsoft.SemanticKernel.Data;
 using Microsoft.SemanticKernel.Plugins.Web.Bing;
@@ -14,12 +16,14 @@ public class ShaBingSearchCore : IDisposable
     private IBrowser _browser;
     private int _timeout = 2500;
     private readonly string _host = "https://cn.bing.com";
+    private readonly ILogger _logger;
 
-    public ShaBingSearchCore(string? host = null, int? timeout = null)
+
+    public ShaBingSearchCore(string? host = null, int? timeout = null, ILogger? logger = null)
     {
         _host = host ?? _host;
         _timeout = timeout ?? _timeout;
-
+        _logger = logger ?? NullLogger.Instance;
         _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
         _browser = _playwright
             .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true })
@@ -97,7 +101,7 @@ public class ShaBingSearchCore : IDisposable
                     var bResults = document.QuerySelector("#b_results");
                     if (bResults == null)
                     {
-                        Console.WriteLine("No search results found.");
+                        _logger.LogInformation("No search results found.");
                         break;
                     }
                     totalEstimatedMatches = ParseTotalCountFromText(
@@ -107,7 +111,7 @@ public class ShaBingSearchCore : IDisposable
                     var resultItems = bResults.QuerySelectorAll("li.b_algo");
                     if (resultItems.Length == 0)
                     {
-                        Console.WriteLine("No result items on current page.");
+                        _logger.LogInformation("No result items on current page.");
                         break;
                     }
 
@@ -154,7 +158,7 @@ public class ShaBingSearchCore : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex}");
+                    _logger.LogError($"Error: {ex}");
                     break;
                 }
             }
