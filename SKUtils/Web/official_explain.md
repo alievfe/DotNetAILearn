@@ -677,11 +677,137 @@ public sealed class WebPages
 
 
 
+```cs
+// 版权所有 (c) 微软公司。保留所有权利。
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel.Data;
+using Microsoft.SemanticKernel.Plugins.Web.Bing;
+using Microsoft.SemanticKernel.Plugins.Web.Google;
+
+namespace Microsoft.SemanticKernel;
+
+/// <summary>
+/// 用于向 <see cref="IServiceCollection"/> 注册 <see cref="ITextSearch"/> 的扩展方法。
+/// </summary>
+public static class WebServiceCollectionExtensions
+{
+    /// <summary>
+    /// 使用指定的服务 ID 注册一个 <see cref="ITextSearch"/> 实例。
+    /// </summary>
+    /// <param name="services">要在其上注册 <see cref="ITextSearch"/> 的 <see cref="IServiceCollection"/>。</param>
+    /// <param name="apiKey">用于对搜索服务的请求进行身份验证的 API 密钥凭证。</param>
+    /// <param name="options">创建 <see cref="BingTextSearch"/> 时使用的 <see cref="BingTextSearchOptions"/> 实例。</param>
+    /// <param name="serviceId">用作服务键的可选服务 ID。</param>
+    public static IServiceCollection AddBingTextSearch(
+        this IServiceCollection services,
+        string apiKey,
+        BingTextSearchOptions? options = null,
+        string? serviceId = default)
+    {
+        // 向服务集合中添加键控单例服务
+        services.AddKeyedSingleton<ITextSearch>(
+            serviceId,
+            (sp, obj) =>
+            {
+                // 如果传入的选项为空，则从服务提供者中获取 BingTextSearchOptions 实例
+                var selectedOptions = options ?? sp.GetService<BingTextSearchOptions>();
+
+                // 创建并返回 BingTextSearch 实例
+                return new BingTextSearch(apiKey, selectedOptions);
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// 使用指定的服务 ID 注册一个 <see cref="ITextSearch"/> 实例。
+    /// </summary>
+    /// <param name="services">要在其上注册 <see cref="ITextSearch"/> 的 <see cref="IServiceCollection"/>。</param>
+    /// <param name="searchEngineId">Google 搜索引擎 ID（格式类似 "a12b345..."）</param>
+    /// <param name="apiKey">用于对搜索服务的请求进行身份验证的 API 密钥凭证。</param>
+    /// <param name="options">创建 <see cref="GoogleTextSearch"/> 时使用的 <see cref="GoogleTextSearchOptions"/> 实例。</param>
+    /// <param name="serviceId">用作服务键的可选服务 ID。</param>
+    public static IServiceCollection AddGoogleTextSearch(
+        this IServiceCollection services,
+        string searchEngineId,
+        string apiKey,
+        GoogleTextSearchOptions? options = null,
+        string? serviceId = default)
+    {
+        // 向服务集合中添加键控单例服务
+        services.AddKeyedSingleton<ITextSearch>(
+            serviceId,
+            (sp, obj) =>
+            {
+                // 如果传入的选项为空，则从服务提供者中获取 GoogleTextSearchOptions 实例
+                var selectedOptions = options ?? sp.GetService<GoogleTextSearchOptions>();
+
+                // 创建并返回 GoogleTextSearch 实例
+                return new GoogleTextSearch(searchEngineId, apiKey, selectedOptions);
+            });
+
+        return services;
+    }
+}
+```
 
 
 
+```cs
+// 版权所有 (c) 微软公司。保留所有权利。
 
+using Microsoft.SemanticKernel.Data;
+using Microsoft.SemanticKernel.Plugins.Web.Bing;
+using Microsoft.SemanticKernel.Plugins.Web.Google;
 
+namespace Microsoft.SemanticKernel;
+
+/// <summary>
+/// 用于向 <see cref="IKernelBuilder"/> 注册 <see cref="ITextSearch"/> 的扩展方法。
+/// </summary>
+public static class WebKernelBuilderExtensions
+{
+    /// <summary>
+    /// 使用指定的服务 ID 注册一个 <see cref="ITextSearch"/> 实例。
+    /// </summary>
+    /// <param name="builder">要在其上注册 <see cref="ITextSearch"/> 的 <see cref="IKernelBuilder"/>。</param>
+    /// <param name="apiKey">用于对搜索服务的请求进行身份验证的 API 密钥凭证。</param>
+    /// <param name="options">创建 <see cref="BingTextSearch"/> 时使用的 <see cref="BingTextSearchOptions"/> 实例。</param>
+    /// <param name="serviceId">用作服务键的可选服务 ID。</param>
+    public static IKernelBuilder AddBingTextSearch(
+        this IKernelBuilder builder,
+        string apiKey,
+        BingTextSearchOptions? options = null,
+        string? serviceId = default)
+    {
+        // 调用 WebServiceCollectionExtensions 中的 AddBingTextSearch 方法将 Bing 文本搜索服务添加到服务集合中
+        builder.Services.AddBingTextSearch(apiKey, options, serviceId);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// 使用指定的服务 ID 注册一个 <see cref="ITextSearch"/> 实例。
+    /// </summary>
+    /// <param name="builder">要在其上注册 <see cref="ITextSearch"/> 的 <see cref="IKernelBuilder"/>。</param>
+    /// <param name="searchEngineId">Google 搜索引擎 ID（格式类似 "a12b345..."）</param>
+    /// <param name="apiKey">用于对搜索服务的请求进行身份验证的 API 密钥凭证。</param>
+    /// <param name="options">创建 <see cref="GoogleTextSearch"/> 时使用的 <see cref="GoogleTextSearchOptions"/> 实例。</param>
+    /// <param name="serviceId">用作服务键的可选服务 ID。</param>
+    public static IKernelBuilder AddGoogleTextSearch(
+        this IKernelBuilder builder,
+        string searchEngineId,
+        string apiKey,
+        GoogleTextSearchOptions? options = null,
+        string? serviceId = default)
+    {
+        // 调用 WebServiceCollectionExtensions 中的 AddGoogleTextSearch 方法将 Google 文本搜索服务添加到服务集合中
+        builder.Services.AddGoogleTextSearch(searchEngineId, apiKey, options, serviceId);
+        return builder;
+    }
+}
+```
 
 
 

@@ -32,7 +32,7 @@ public class ShaBingSearch : ITextSearch
     public async Task<KernelSearchResults<string>> SearchAsync(
         string query,
         TextSearchOptions? searchOptions,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     )
     {
         searchOptions ??= new TextSearchOptions();
