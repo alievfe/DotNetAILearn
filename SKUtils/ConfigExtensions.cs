@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -33,13 +34,14 @@ public static class ConfigExtensions
 
     public static IKernelBuilder AddOpenAIChatWithHttpClient(
         this IKernelBuilder builder,
-        OpenAIConfig config
+        OpenAIConfig config,
+        bool isLog = false
     )
     {
         return builder.AddOpenAIChatCompletion(
             modelId: config.ModelId,
             apiKey: config.ApiKey,
-            httpClient: new HttpClient(new AIHostCustomHandler(config.Host))
+            httpClient: new HttpClient(new AIHostCustomHandler(config.Host, isLog))
         );
     }
 
@@ -87,12 +89,13 @@ public static class ConfigExtensions
     public static Kernel GetKernel2(
         string chatModelName,
         string? ebdModelName = null,
-        string jsonPath = "./tmpsecrets.json"
+        string jsonPath = "./tmpsecrets.json",
+        bool isLog = true
     )
     {
         var configRoot = LoadConfigFromJson(jsonPath);
         var chatConfig = configRoot.GetSection(chatModelName).Get<OpenAIConfig>();
-        var builder = Kernel.CreateBuilder().AddOpenAIChatWithHttpClient(chatConfig);
+        var builder = Kernel.CreateBuilder().AddOpenAIChatWithHttpClient(chatConfig, isLog);
         if (ebdModelName != null)
         {
             var ebdConfig = configRoot.GetSection(ebdModelName).Get<OpenAIConfig>();
@@ -108,7 +111,9 @@ public static class ConfigExtensions
         return builder.Build();
     }
 
-    public static OpenAITextEmbeddingGenerationService GetEbdService(string ebdModelName = "DouBao-Ebd")
+    public static OpenAITextEmbeddingGenerationService GetEbdService(
+        string ebdModelName = "DouBao-Ebd"
+    )
     {
         var ebdConfig = LoadConfigFromJson().GetSection(ebdModelName).Get<OpenAIConfig>();
         return new OpenAITextEmbeddingGenerationService(

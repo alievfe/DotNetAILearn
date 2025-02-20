@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
 using System.Net;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Web;
+using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -24,7 +27,7 @@ public class ShaBingSearchCore : IDisposable
         _logger = logger ?? NullLogger.Instance;
         _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
         _browser = _playwright
-            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true })
+            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false })
             .GetAwaiter()
             .GetResult();
     }
@@ -106,6 +109,16 @@ public class ShaBingSearchCore : IDisposable
                         document.QuerySelector("#b_tween_searchResults span")?.TextContent.Trim()
                     );
 
+                    // TODO开头直接可能有 ans解答项目，有多种情况
+                    var liAns = bResults.QuerySelector("li.b_ans.b_top.b_topborder");
+                    var webPage = ParseTopAnswer(liAns);
+                    if (webPage is not null)
+                    {
+                        results.Add(webPage);
+                        if (results.Count >= searchOptions.Top)
+                            break;
+                    }
+
                     var resultItems = bResults.QuerySelectorAll("li.b_algo");
                     if (resultItems.Length == 0)
                     {
@@ -118,22 +131,49 @@ public class ShaBingSearchCore : IDisposable
                         cancellationToken.ThrowIfCancellationRequested();
 
                         var urlNode = li.QuerySelector("div.b_tpcn a");
+                        // 标题和url
                         var title = li.QuerySelector("h2 a")?.TextContent.Trim();
                         var iurl = urlNode?.GetAttribute("href")?.Trim();
                         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(iurl))
                             continue;
-
+                        // 网站名
                         var siteName = urlNode?.GetAttribute("aria-label")?.Trim();
+
+                        // 网站图标
                         var iconUrl = li.QuerySelector("div.wr_fav div img")
                             ?.GetAttribute("src")
                             ?.Trim();
-                        var imageUrl = ParseImageUrlInLable(
-                            li.QuerySelector("a.b_ci_image_ova")?.GetAttribute("aria-label")?.Trim()
-                        );
-                        var abstractText = li.QuerySelector("div.b_caption")?.TextContent.Trim();
+
+                        // 获取网站内容，并分割出日期。可能多种情况
+                        //var abstractText = li.QuerySelector("div.b_caption")?.TextContent.Trim();
+                        var abstractText = li.QuerySelector("div.b_caption p.b_lineclamp2")
+                            ?.TextContent.Trim();
                         if (string.IsNullOrEmpty(abstractText))
-                            abstractText = li.QuerySelector("p.b_lineclamp3")?.TextContent.Trim();
+                        {
+                            abstractText =
+                                li.QuerySelector("div.b_caption p.b_lineclamp3")?.TextContent.Trim()
+                                + li.QuerySelector("div.b_caption div.b_factrow div.b_vlist2col")
+                                    ?.TextContent.Trim();
+                        }
+                        if (string.IsNullOrEmpty(abstractText)) // 知乎回答排在前面
+                        {
+                            abstractText = li.QuerySelector("div.b_algoQuizGoBig")
+                                ?.TextContent.Trim();
+                        }
                         var (dateLastCrawled, trimmedAbstract) = ParseDateAndTrimText(abstractText);
+
+                        // 图像获取，可能有多种情况，左侧大图、右侧小图
+                        var imageUrl = li.QuerySelector(
+                                "div.mc_vtvc_con_rc div.b_canvas div.cico img"
+                            )
+                            ?.GetAttribute("src")
+                            ?.Trim();
+                        if (string.IsNullOrEmpty(imageUrl))
+                            imageUrl = ParseImageUrlInLable(
+                                li.QuerySelector("a.b_ci_image_ova")
+                                    ?.GetAttribute("aria-label")
+                                    ?.Trim()
+                            );
 
                         results.Add(
                             new ShaBingWebPage
@@ -156,6 +196,7 @@ public class ShaBingSearchCore : IDisposable
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine($"Error: {ex}");
                     _logger.LogError($"Error: {ex}");
                     break;
                 }
@@ -165,7 +206,7 @@ public class ShaBingSearchCore : IDisposable
         {
             await page.CloseAsync();
         }
-        return new ShaBingSearchResponse<ShaBingWebPage>
+        var response = new ShaBingSearchResponse<ShaBingWebPage>
         {
             Type = "SearchResponse",
             QueryContext = new ShaBingQueryContext { OriginalQuery = query },
@@ -176,6 +217,46 @@ public class ShaBingSearchCore : IDisposable
                 WebSearchUrl = $"{_host}/search?q={WebUtility.UrlEncode(query)}",
                 Value = results,
             },
+        };
+        Console.WriteLine("\n\n----log------");
+        Console.WriteLine("\n----查询输入 " + query);
+        Console.WriteLine("\n----查询条件 " + JsonSerializer.Serialize(searchOptions));
+        Console.WriteLine(
+            "\n----搜索内容 "
+                + JsonSerializer.Serialize(
+                    response,
+                    new JsonSerializerOptions
+                    {
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                        WriteIndented = true,
+                    }
+                )
+        );
+        Console.WriteLine("\n----log------\n");
+        return response;
+    }
+
+    private ShaBingWebPage? ParseTopAnswer(IElement? liAns)
+    {
+        if (liAns is null)
+            return null;
+        var urlNode = liAns.QuerySelector("h2 a");
+        var title = urlNode?.TextContent?.Trim();
+        var iurl = urlNode?.GetAttribute("href")?.Trim();
+        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(iurl))
+            return null;
+        var siteName = liAns.QuerySelector("div.b_imagePair cite")?.TextContent?.Trim();
+        var iconUrl = liAns.QuerySelector("div.b_imagePair img")?.GetAttribute("src")?.Trim();
+        var abstractText = liAns.QuerySelector("div.rwrl")?.TextContent?.Trim();
+        return new ShaBingWebPage
+        {
+            Id = "1",
+            Name = title,
+            DisplayUrl = iurl,
+            Url = iurl,
+            Snippet = abstractText,
+            SiteIcon = iconUrl,
+            SiteName = siteName,
         };
     }
 

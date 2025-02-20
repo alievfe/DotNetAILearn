@@ -811,15 +811,453 @@ public static class WebKernelBuilderExtensions
 
 
 
+```cs
+// 版权所有 (c) 微软公司。保留所有权利。
+using System.Text.RegularExpressions;
+using HtmlAgilityPack;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Data;
+using Microsoft.SemanticKernel.Plugins.Web.Bing;
+using Microsoft.SemanticKernel.Plugins.Web.Google;
+using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
+
+namespace GettingStartedWithTextSearch;
+
+/// <summary>
+/// 此示例展示了如何使用 <see cref="ITextSearch"/> 进行检索增强生成 (RAG)。
+/// </summary>
+public class Step2_Search_For_RAG(ITestOutputHelper output) : BaseTest(output)
+{
+    /// <summary>
+    /// 展示如何从 <see cref="BingTextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为提示添加背景上下文。
+    /// </summary>
+    [Fact]
+    public async Task RagWithTextSearchAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId,
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        ITextSearch textSearch = this.UseBingSearch ?
+            new BingTextSearch(
+                apiKey: TestConfiguration.Bing.ApiKey) :
+            new GoogleTextSearch(
+                searchEngineId: TestConfiguration.Google.SearchEngineId,
+                apiKey: TestConfiguration.Google.ApiKey);
+
+        // 构建一个带有网页搜索功能的文本搜索插件，并添加到内核中
+        var searchPlugin = textSearch.CreateWithSearch("SearchPlugin");
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        var prompt = "{{SearchPlugin.Search $query}}. {{$query}}";
+        KernelArguments arguments = new() { { "query", query } };
+        Console.WriteLine(await kernel.InvokePromptAsync(prompt, arguments));
+    }
+
+    /// <summary>
+    /// 展示如何从 <see cref="ITextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为 Handlebars 提示添加背景上下文，同时在响应中包含引用信息。
+    /// </summary>
+    [Fact]
+    public async Task RagWithBingTextSearchIncludingCitationsAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId,
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        var textSearch = new BingTextSearch(new(TestConfiguration.Bing.ApiKey));
+
+        // 构建一个带有 Bing 搜索功能的文本搜索插件，并添加到内核中
+        var searchPlugin = textSearch.CreateWithGetTextSearchResults("SearchPlugin");
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        string promptTemplate = """
+            {{#with (SearchPlugin-GetTextSearchResults query)}}  
+              {{#each this}}  
+                名称: {{Name}}
+                值: {{Value}}
+                链接: {{Link}}
+                -----------------
+              {{/each}}  
+            {{/with}}  
+
+            {{query}}
+
+            在响应中引用相关信息时，请包含引用出处。
+            """;
+        KernelArguments arguments = new() { { "query", query } };
+        HandlebarsPromptTemplateFactory promptTemplateFactory = new();
+        Console.WriteLine(await kernel.InvokePromptAsync(
+            promptTemplate,
+            arguments,
+            templateFormat: HandlebarsPromptTemplateFactory.HandlebarsTemplateFormat,
+            promptTemplateFactory: promptTemplateFactory
+        ));
+    }
+
+    /// <summary>
+    /// 展示如何从 <see cref="ITextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为 Handlebars 提示添加背景上下文，同时在响应中包含引用信息和时间戳。
+    /// </summary>
+    [Fact]
+    public async Task RagWithBingTextSearchIncludingTimeStampedCitationsAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId,
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        var textSearch = new BingTextSearch(new(TestConfiguration.Bing.ApiKey));
+
+        // 构建一个带有 Bing 搜索功能的文本搜索插件，并添加到内核中
+        var searchPlugin = textSearch.CreateWithGetSearchResults("SearchPlugin");
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        string promptTemplate = """
+            {{#with (SearchPlugin-GetSearchResults query)}}  
+              {{#each this}}  
+                名称: {{Name}}
+                摘要: {{Snippet}}
+                链接: {{DisplayUrl}}
+                最后爬取日期: {{DateLastCrawled}}
+                -----------------
+              {{/each}}  
+            {{/with}}  
+
+            {{query}}
+
+            在响应中引用相关信息时，请包含引用出处和信息日期。
+            """;
+        KernelArguments arguments = new() { { "query", query } };
+        HandlebarsPromptTemplateFactory promptTemplateFactory = new();
+        Console.WriteLine(await kernel.InvokePromptAsync(
+            promptTemplate,
+            arguments,
+            templateFormat: HandlebarsPromptTemplateFactory.HandlebarsTemplateFormat,
+            promptTemplateFactory: promptTemplateFactory
+        ));
+    }
+
+    /// <summary>
+    /// 展示如何从 <see cref="ITextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为 Handlebars 提示添加背景上下文，该提示包含来自 Microsoft 开发者博客网站的搜索结果。
+    /// </summary>
+    [Fact]
+    public async Task RagWithBingTextSearchUsingDevBlogsSiteAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId,
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        var textSearch = new BingTextSearch(new(TestConfiguration.Bing.ApiKey));
+
+        // 创建一个过滤器，仅搜索 Microsoft 开发者博客网站
+        var filter = new TextSearchFilter().Equality("site", "devblogs.microsoft.com");
+        var searchOptions = new TextSearchOptions() { Filter = filter };
+
+        // 构建一个带有 Bing 搜索功能的文本搜索插件，并添加到内核中
+        var searchPlugin = KernelPluginFactory.CreateFromFunctions(
+            "SearchPlugin", "仅搜索 Microsoft 开发者博客网站",
+            [textSearch.CreateGetTextSearchResults(searchOptions: searchOptions)]);
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        string promptTemplate = """
+            {{#with (SearchPlugin-GetTextSearchResults query)}}  
+              {{#each this}}  
+                名称: {{Name}}
+                值: {{Value}}
+                链接: {{Link}}
+                -----------------
+              {{/each}}  
+            {{/with}}  
+
+            {{query}}
+
+            在响应中引用相关信息时，请包含引用出处。
+            """;
+        KernelArguments arguments = new() { { "query", query } };
+        HandlebarsPromptTemplateFactory promptTemplateFactory = new();
+        Console.WriteLine(await kernel.InvokePromptAsync(
+            promptTemplate,
+            arguments,
+            templateFormat: HandlebarsPromptTemplateFactory.HandlebarsTemplateFormat,
+            promptTemplateFactory: promptTemplateFactory
+        ));
+    }
+
+    /// <summary>
+    /// 展示如何从 <see cref="ITextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为 Handlebars 提示添加背景上下文，该提示包含指定网站的搜索结果。
+    /// </summary>
+    [Fact]
+    public async Task RagWithBingTextSearchUsingCustomSiteAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId,
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        var textSearch = new BingTextSearch(new(TestConfiguration.Bing.ApiKey));
+
+        // 构建一个带有 Bing 搜索功能的文本搜索插件，并添加到内核中
+        var options = new KernelFunctionFromMethodOptions()
+        {
+            FunctionName = "GetSiteResults",
+            Description = "执行与指定查询相关的内容搜索，可选择仅搜索指定域名下的内容。",
+            Parameters =
+            [
+                new KernelParameterMetadata("query") { Description = "要搜索的内容", IsRequired = true },
+                new KernelParameterMetadata("top") { Description = "结果数量", IsRequired = false, DefaultValue = 5 },
+                new KernelParameterMetadata("skip") { Description = "要跳过的结果数量", IsRequired = false, DefaultValue = 0 },
+                new KernelParameterMetadata("site") { Description = "仅返回此域名下的结果", IsRequired = false },
+            ],
+            ReturnParameter = new() { ParameterType = typeof(KernelSearchResults<string>) },
+        };
+        var searchPlugin = KernelPluginFactory.CreateFromFunctions("SearchPlugin", "搜索指定网站", [textSearch.CreateGetTextSearchResults(options)]);
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        string promptTemplate = """
+            {{#with (SearchPlugin-GetSiteResults query)}}  
+              {{#each this}}  
+                名称: {{Name}}
+                值: {{Value}}
+                链接: {{Link}}
+                -----------------
+              {{/each}}  
+            {{/with}}  
+
+            {{query}}
+
+            仅包含来自 techcommunity.microsoft.com 的结果。 
+            在响应中引用相关信息时，请包含引用出处。
+            """;
+        KernelArguments arguments = new() { { "query", query } };
+        HandlebarsPromptTemplateFactory promptTemplateFactory = new();
+        Console.WriteLine(await kernel.InvokePromptAsync(
+            promptTemplate,
+            arguments,
+            templateFormat: HandlebarsPromptTemplateFactory.HandlebarsTemplateFormat,
+            promptTemplateFactory: promptTemplateFactory
+        ));
+    }
+
+    /// <summary>
+    /// 展示如何从 <see cref="ITextSearch"/> 创建默认的 <see cref="KernelPlugin"/>，并使用它为 Handlebars 提示添加背景上下文，该提示包含完整的网页内容。
+    /// </summary>
+    [Fact]
+    public async Task RagWithBingTextSearchUsingFullPagesAsync()
+    {
+        // 创建一个使用 OpenAI 聊天完成的内核
+        IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+        kernelBuilder.AddOpenAIChatCompletion(
+            modelId: TestConfiguration.OpenAI.ChatModelId, // 需要大上下文窗口的模型，例如 gpt - 4o 或 gpt - 4o - mini 
+            apiKey: TestConfiguration.OpenAI.ApiKey);
+        Kernel kernel = kernelBuilder.Build();
+
+        // 使用 Bing 搜索创建文本搜索实例
+        var textSearch = new TextSearchWithFullValues(new BingTextSearch(new(TestConfiguration.Bing.ApiKey)));
+
+        // 创建一个过滤器，仅搜索 Microsoft 开发者博客网站
+        var filter = new TextSearchFilter().Equality("site", "devblogs.microsoft.com");
+        var searchOptions = new TextSearchOptions() { Filter = filter };
+
+        // 构建一个带有 Bing 搜索功能的文本搜索插件，并添加到内核中
+        var searchPlugin = KernelPluginFactory.CreateFromFunctions(
+            "SearchPlugin", "仅搜索 Microsoft 开发者博客网站",
+            [textSearch.CreateGetTextSearchResults(searchOptions: searchOptions)]);
+        kernel.Plugins.Add(searchPlugin);
+
+        // 调用提示，并使用文本搜索插件提供背景信息
+        var query = "什么是 Semantic Kernel？";
+        string promptTemplate = """
+            {{#with (SearchPlugin-GetTextSearchResults query)}}  
+              {{#each this}}  
+                名称: {{Name}}
+                值: {{Value}}
+                链接: {{Link}}
+                -----------------
+              {{/each}}  
+            {{/with}}  
+
+            {{query}}
+
+            在响应中引用相关信息时，请包含引用出处。
+            """;
+        KernelArguments arguments = new() { { "query", query } };
+        HandlebarsPromptTemplateFactory promptTemplateFactory = new();
+        Console.WriteLine(await kernel.InvokePromptAsync(
+            promptTemplate,
+            arguments,
+            templateFormat: HandlebarsPromptTemplateFactory.HandlebarsTemplateFormat,
+            promptTemplateFactory: promptTemplateFactory
+        ));
+    }
+}
+
+/// <summary>
+/// 包装 <see cref="ITextSearch"/> 以提供完整的网页作为搜索结果。
+/// </summary>
+public partial class TextSearchWithFullValues(ITextSearch searchDelegate) : ITextSearch
+{
+    /// <inheritdoc/>
+    public Task<KernelSearchResults<object>> GetSearchResultsAsync(string query, TextSearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
+    {
+        return searchDelegate.GetSearchResultsAsync(query, searchOptions, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<KernelSearchResults<TextSearchResult>> GetTextSearchResultsAsync(string query, TextSearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
+    {
+        var results = await searchDelegate.GetTextSearchResultsAsync(query, searchOptions, cancellationToken);
+
+        var resultList = new List<TextSearchResult>();
+
+        using HttpClient client = new();
+        await foreach (var item in results.Results.WithCancellation(cancellationToken).ConfigureAwait(false))
+        {
+            string? value = item.Value;
+            try
+            {
+                if (item.Link is not null)
+                {
+                    value = await client.GetStringAsync(new Uri(item.Link), cancellationToken);
+                    value = ConvertHtmlToPlainText(value);
+                }
+            }
+            catch (HttpRequestException)
+            {
+            }
+
+            resultList.Add(new(value) { Name = item.Name, Link = item.Link });
+        }
+
+        return new KernelSearchResults<TextSearchResult>(resultList.ToAsyncEnumerable<TextSearchResult>(), results.TotalCount, results.Metadata);
+    }
+
+    /// <inheritdoc/>
+    public Task<KernelSearchResults<string>> SearchAsync(string query, TextSearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
+    {
+        return searchDelegate.SearchAsync(query, searchOptions, cancellationToken);
+    }
+
+    /// <summary>
+    /// 将 HTML 转换为纯文本。
+    /// </summary>
+    private static string ConvertHtmlToPlainText(string html)
+    {
+        HtmlDocument doc = new();
+        doc.LoadHtml(html);
+
+        string text = doc.DocumentNode.InnerText;
+        text = MyRegex().Replace(text, " "); // 去除不必要的空白字符  
+        return text.Trim();
+    }
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex MyRegex();
+}
+```
 
 
 
+resp
+
+```
+Hello, World!
+
+
+----log------
+
+----查询输入 我又幻想了是什么梗？
+
+----查询条件 {"IncludeTotalCount":false,"Filter":null,"Top":2,"Skip":0}
+
+----搜索内容 {
+  "_type": "SearchResponse",
+  "queryContext": {
+    "originalQuery": "我又幻想了是什么梗？",
+    "alteredQuery": null
+  },
+  "webPages": {
+    "id": "c500db18-8090-49d6-985e-d9a75d321d49",
+    "totalEstimatedMatches": 58800000,
+    "webSearchUrl": "https://cn.bing.com/search?q=%E6%88%91%E5%8F%88%E5%B9%BB%E6%83%B3%E4%BA%86%E6%98%AF%E4%BB%80%E4%B9%88%E6%A2%97%EF%BC%9F",
+    "value": [
+      {
+        "id": "1",
+        "name": "我又幻想了是什么梗【瓦龙梗百科】_英雄联盟 - 哔哩哔哩",
+        "displayUrl": "https://www.bilibili.com/video/BV15NAVeZEXL/",
+        "url": "https://www.bilibili.com/video/BV15NAVeZEXL/",
+        "snippet": "简介：我又幻想了是什么梗 引用素材： BV17AwneJERJ B；更多实用攻略教学，爆笑沙雕集锦，你所不知道的游戏知识，热门游戏视频7*24小时持续更新,尽在哔哩哔哩bilibili 视频 …",
+        "siteName": "哔哩哔哩",
+        "siteIcon": "https://ts4.cn.mm.bing.net/th?id=ODLS.1e67f861-d980-4c01-ba66-9450f90172f4&w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2",
+        "siteImage": null,
+        "dateLastCrawled": "2025-02-16"
+      },
+      {
+        "id": "2",
+        "name": "又幻想了是什么梗【梗指南】_哔哩哔哩_bilibili",
+        "displayUrl": "https://www.bilibili.com/video/BV1QiAzeaES7/",
+        "url": "https://www.bilibili.com/video/BV1QiAzeaES7/",
+        "snippet": "又幻想了是什么梗引用素材：BV17AwneJERJBV1GcNdeEERZBV1ggA3e2EYjBV1yNNfeGEktBV1x4APeQEY9BV19aANeTEXzBV1iFAie8EXZ* …",
+        "siteName": "哔哩哔哩",
+        "siteIcon": "https://ts4.cn.mm.bing.net/th?id=ODLS.1e67f861-d980-4c01-ba66-9450f90172f4&w=32&h=32&qlt=91&pcl=fffffa&o=6&pid=1.2",
+        "siteImage": null,
+        "dateLastCrawled": "2025-02-20"
+      }
+    ]
+  }
+}
+
+----log------
+
+Request: POST https://ark.cn-beijing.volces.com/api/v3/chat/completions
+Bearer Token: 7864919b-af93-4c85-9d31-92918a921c33
+Request Body: {"messages":[{"role":"user","content":"System.Collections.Generic.List\u00601[System.String]. \u6211\u53C8\u5E7B\u60F3\u4E86\u662F\u4EC0\u4E48\u6897\uFF1F"}],"model":"ep-20250207134353-9wcjp"}
+Response Body: {"choices":[{"finish_reason":"stop","index":0,"logprobs":null,"message":{"content":"“System.Collections.Generic.List`1[System.String]. 我又幻想了”是网络上一个比较魔性、无厘头的梗。\n\n### 来源\n它最初出自一段聊天记录。其中一 人回复的内容包含“System.Collections.Generic.List`1[System.String]. 我又幻想了”这样看似非常专业的计算机代码相关表述与日常幻想话语的奇怪组合，这种不搭调的拼接和其莫名的风格引发了网友的关注和兴趣。\n\n### 传播与特点\n之后在网络上广泛传播，大家会在一些搞笑、调侃或者想要营造无厘头氛围的场景中使用这句话，它以其独特的怪异感给人留下深刻印象，成为一种网络流行的搞笑表达。   ","role":"assistant"}}],"created":1740035952,"id":"021740035947232c2649323859df38f4624a67d95e98392dd1e8d","model":"doubao-1-5-pro-32k-250115","object":"chat.completion","usage":{"completion_tokens":158,"prompt_tokens":26,"total_tokens":184,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":0}}}
+“System.Collections.Generic.List`1[System.String]. 我又幻想了”是网络上一个比较魔性、无厘头的梗。
+
+### 来源
+它最初出自一段聊天记录。其中一人回复的内容包含“System.Collections.Generic.List`1[System.String]. 我又幻想了”这样看似非常专业的计算机代码相关表述与日常幻想话语的奇怪组合，这种不搭调的拼接和其莫名的风格引发了网友的关注和兴趣。
+
+### 传播与特点
+之后在网络上广泛传播，大家会在一些搞笑、调侃或者想要营造无厘头氛围的场景中使用这句话，它以其独特的怪异感给人留下深刻印象，成为一种网络流行的搞笑表达。
+
+```
 
 
 
+菊花茶是什么？
 
 
 
+nmsl是什么网络用语
 
+武夷岩茶是什么
 
+太极是
 
