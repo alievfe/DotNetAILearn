@@ -17,7 +17,6 @@ public class ShaBingSearchCore : IDisposable
     private readonly string _host = "https://cn.bing.com";
     private readonly ILogger _logger;
 
-
     public ShaBingSearchCore(string? host = null, int? timeout = null, ILogger? logger = null)
     {
         _host = host ?? _host;
@@ -134,7 +133,7 @@ public class ShaBingSearchCore : IDisposable
                         var abstractText = li.QuerySelector("div.b_caption")?.TextContent.Trim();
                         if (string.IsNullOrEmpty(abstractText))
                             abstractText = li.QuerySelector("p.b_lineclamp3")?.TextContent.Trim();
-                        var dateLastCrawled = ParseDateStringInText(abstractText);
+                        var (dateLastCrawled, trimmedAbstract) = ParseDateAndTrimText(abstractText);
 
                         results.Add(
                             new ShaBingWebPage
@@ -143,7 +142,7 @@ public class ShaBingSearchCore : IDisposable
                                 Name = title,
                                 DisplayUrl = iurl,
                                 Url = iurl,
-                                Snippet = abstractText,
+                                Snippet = trimmedAbstract,
                                 SiteIcon = iconUrl,
                                 SiteName = siteName,
                                 SiteImage = imageUrl,
@@ -200,29 +199,41 @@ public class ShaBingSearchCore : IDisposable
         return queryParams["mediaurl"];
     }
 
-    private string? ParseDateStringInText(string? input)
+    private (string? ParsedDate, string? TrimmedInput) ParseDateAndTrimText(string? input)
     {
         if (input is null)
-            return null;
-        input = input.Length < 20 ? input : input[..20];
+        {
+            return (null, null);
+        }
+
+        string trimmedInput = input;
         int dotIndex = input.IndexOf(" · ");
-        if (dotIndex == -1)
-            return null;
-        string datePart = input[..dotIndex].Trim();
-        if (datePart.EndsWith("天前"))
+        string? datePart;
+        // 在前20个字符中找到，则说明存在日期片段，那么截取前面的为日期片段，后面的为实际文本；否则直接返回原始文本
+        if (dotIndex != -1 && dotIndex < 20)
         {
-            int days = int.Parse(datePart.Replace("天前", "").Trim());
-            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days).ToString("yyyy-MM-dd");
+            datePart = input[..dotIndex].Trim();
+            trimmedInput = input[(dotIndex + 3)..];
         }
-        if (datePart.EndsWith("天之前"))
+        else
         {
-            int days = int.Parse(datePart.Replace("天之前", "").Trim());
-            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days).ToString("yyyy-MM-dd");
+            return (null, trimmedInput);
         }
+        // 1天之前，3天前
+        if (datePart.EndsWith("天前") || datePart.EndsWith("天之前"))
+        {
+            int days = int.Parse(datePart.Replace("天前", "").Replace("天之前", "").Trim());
+            return (
+                DateOnly.FromDateTime(DateTime.Today).AddDays(-days).ToString("yyyy-MM-dd"),
+                trimmedInput
+            );
+        }
+        // 3小时之前
         if (datePart.EndsWith("之前"))
         {
-            return DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd");
+            return (DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd"), trimmedInput);
         }
+        // 2000年1月1日
         if (
             DateOnly.TryParseExact(
                 datePart,
@@ -233,9 +244,9 @@ public class ShaBingSearchCore : IDisposable
             )
         )
         {
-            return parsedDate.ToString("yyyy-MM-dd");
+            return (parsedDate.ToString("yyyy-MM-dd"), trimmedInput);
         }
-        return null;
+        return (null, trimmedInput);
     }
 
     private string UrlEncode(Dictionary<string, string> parameters)
