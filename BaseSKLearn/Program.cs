@@ -83,8 +83,8 @@ Console.WriteLine("Hello, World!");
 
 
 
-using var bingSearch = new BingSearchTest();
-var results = await bingSearch.SearchAsync("python", 15);
+using var bingSearch = new ShaBingSearchCore();
+var results = await bingSearch.ExecuteSearchAsync("python", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 15});
 
 Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
 {

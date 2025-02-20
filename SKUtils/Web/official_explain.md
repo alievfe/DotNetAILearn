@@ -1,3 +1,8 @@
+##### c
+
+
+
+
 ```cs
 // 版权所有 (c) 微软公司。保留所有权利。
 
@@ -334,4 +339,547 @@ public sealed class BingWebPage
     public bool? IsNavigational { get; set; }
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### p
+
+```
+C#解释以下代码作用，同时给出案例结果
+        Uri uri = new($"{this._uri}?q={BuildQuery(query, searchOptions)}");
+private static string BuildQuery(string query, TextSearchOptions searchOptions)
+    {
+        StringBuilder fullQuery = new();
+        fullQuery.Append(Uri.EscapeDataString(query.Trim()));
+        StringBuilder queryParams = new();
+        if (searchOptions.Filter is not null)
+        {
+            var filterClauses = searchOptions.Filter.FilterClauses;
+
+            foreach (var filterClause in filterClauses)
+            {
+                if (filterClause is EqualToFilterClause equalityFilterClause)
+                {
+                    if (s_advancedSearchKeywords.Contains(equalityFilterClause.FieldName, StringComparer.OrdinalIgnoreCase) && equalityFilterClause.Value is not null)
+                    {
+                        fullQuery.Append($"+{equalityFilterClause.FieldName}%3A").Append(Uri.EscapeDataString(equalityFilterClause.Value.ToString()!));
+                    }
+                    else if (s_queryParameters.Contains(equalityFilterClause.FieldName, StringComparer.OrdinalIgnoreCase) && equalityFilterClause.Value is not null)
+                    {
+                        string? queryParam = s_queryParameters.FirstOrDefault(s => s.Equals(equalityFilterClause.FieldName, StringComparison.OrdinalIgnoreCase));
+                        queryParams.Append('&').Append(queryParam!).Append('=').Append(Uri.EscapeDataString(equalityFilterClause.Value.ToString()!));
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Unknown equality filter clause field name '{equalityFilterClause.FieldName}', must be one of {string.Join(",", s_queryParameters)},{string.Join(",", s_advancedSearchKeywords)}", nameof(searchOptions));
+                    }
+                }
+            }
+        }
+
+        fullQuery.Append($"&count={searchOptions.Top}&offset={searchOptions.Skip}{queryParams}");
+
+        return fullQuery.ToString();
+    }
+```
+
+
+
+
+
+```
+C#帮我重构代码，已有代码如下，现在要迁移到新的类，以及新的返回类型，同时优化调整代码逻辑，保证健全高可用。
+
+public class SearchResult
+{
+    public int Rank { get; set; }
+    public required string Title { get; set; }
+    public required string Url { get; set; }
+    public string? SiteName { get; set; }
+    public string? SiteIcon { get; set; }
+    public string? Image { get; set; }
+    public DateOnly? SiteDate { get; set; }
+    public string? Abstract { get; set; }
+}
+public class BingSearchTest : IDisposable
+{
+    private IPlaywright _playwright;
+    private IBrowser _browser;
+
+    private readonly string _host = "https://cn.bing.com";
+
+    public BingSearchTest()
+    {
+        _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
+        _browser = _playwright
+            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true })
+            .GetAwaiter()
+            .GetResult();
+    }
+
+    public async Task<List<SearchResult>> SearchAsync(
+        string keyword,
+        int numResults = 30,
+        bool debug = false
+    )
+    {
+        var results = new List<SearchResult>();
+
+        if (string.IsNullOrEmpty(keyword) || numResults <= 0)
+            return results;
+
+        var page = await _browser.NewPageAsync();
+
+        while (results.Count < numResults)
+        {
+
+            var queryParams = new Dictionary<string, string>
+            {
+                { "q", keyword },
+                { "FPIG", Guid.NewGuid().ToString("N") },
+                { "first", results.Count.ToString() },
+                { "FORM", "PERE1" },
+            };
+            string url = $"{_host}/search?{UrlEncode(queryParams)}";
+
+            try
+            {
+                string? content = null;
+                try
+                {
+                    await page.GotoAsync(url, new PageGotoOptions
+                    {
+                        WaitUntil = WaitUntilState.NetworkIdle,
+                        Timeout = 2500
+                    });
+                    content = await page.ContentAsync();
+                    if (content.Length < 100)
+                    {
+                        await page.ReloadAsync(
+                            new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 2500 }
+                        );
+                        content = await page.ContentAsync();
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    content = await page.ContentAsync();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(content);
+
+                var bResults = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_results']");
+                if (bResults == null)
+                {
+                    if (debug)
+                        Console.WriteLine("No search results found.");
+                    break;
+                }
+                var totalCountNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_tween_searchResults']/span");
+                long? totalEstimatedMatches;
+                if (totalCountNode is not null)
+                    totalEstimatedMatches = ParseTotalCountFromText(totalCountNode.InnerText.Trim());
+
+                var resultItems = bResults.SelectNodes("./li[contains(@class, 'b_algo')]");
+                if (resultItems == null || resultItems.Count == 0)
+                {
+                    if (debug)
+                        Console.WriteLine("No result items on current page.");
+                    break;
+                }
+
+                foreach (var li in resultItems)
+                {
+                    var titleNode = li.SelectSingleNode(".//h2/a");
+                    var urlNode = li.SelectSingleNode(".//div[contains(@class, 'b_tpcn')]//a");
+                    var iconNode = li.SelectSingleNode(".//div[contains(@class, 'wr_fav')]/div/img");
+                    var abstractNode = li.SelectSingleNode(".//div[contains(@class, 'b_caption')]");
+                    var abstractNode2 = li.SelectSingleNode(
+                        ".//p[contains(@class, 'b_lineclamp3')]"
+                    );
+                    var imageNode = li.SelectSingleNode(".//a[contains(@class, 'b_ci_image_ova')]");
+                    var title = titleNode?.InnerText.Trim();
+                    var iurl = urlNode?.GetAttributeValue("href", "").Trim();
+                    var siteName = urlNode?.GetAttributeValue("aria-label", "").Trim();
+                    var iconurl = iconNode?.GetAttributeValue("src", "").Trim();
+
+                    var abstractText = abstractNode?.InnerText.Trim();
+                    if (string.IsNullOrEmpty(abstractText))
+                        abstractText = abstractNode2?.InnerText.Trim() ?? "";
+                    
+                    string? imageurl = null;
+                    if (imageNode is not null)
+                        imageurl = ParseImageUrlInLable(
+                            imageNode.GetAttributeValue("aria-label", "").Trim()
+                        );
+
+                    var siteDate = ParseDateInText(abstractText);
+
+                    if (string.IsNullOrEmpty(title))
+                        continue;
+                    if (string.IsNullOrEmpty(iurl))
+                        continue;
+
+                    results.Add(
+                        new SearchResult
+                        {
+                            Rank = results.Count + 1,
+                            Title = title,
+                            Url = iurl,
+                            SiteName = siteName,
+                            SiteIcon = iconurl,
+                            SiteDate = siteDate,
+                            Image = imageurl,
+                            Abstract = abstractText,
+                        }
+                    );
+
+                    if (results.Count >= numResults)
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+                break;
+            }
+        }
+
+        return results.Take(numResults).ToList();
+    }
+    private long? ParseTotalCountFromText(string input)
+    {
+        string cleanNumber = input.Replace("约 ", "").Replace(" 个结果", "").Replace(",", "");
+        // 尝试解析为 long 类型
+        if (long.TryParse(cleanNumber, out long number))
+            return number;
+        else
+            return null;
+    }
+    private string? ParseImageUrlInLable(string lable)
+    {
+        string decodedUrl = System.Net.WebUtility.HtmlDecode(lable);
+        var uri = new Uri(_host + decodedUrl);
+        var queryParams = HttpUtility.ParseQueryString(uri.Query);
+        return queryParams["mediaurl"];
+    }
+
+    private DateOnly? ParseDateInText(string input)
+    {
+        input = input.Length < 20 ? input : input[..20];
+        int dotIndex = input.IndexOf(" · ");
+        if (dotIndex == -1)
+            return null;
+        string datePart = input[..dotIndex].Trim();
+        if (datePart.EndsWith("天前"))
+        {
+            int days = int.Parse(datePart.Replace("天前", "").Trim());
+            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days);
+        }
+        if (datePart.EndsWith("天之前"))
+        {
+            int days = int.Parse(datePart.Replace("天之前", "").Trim());
+            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days);
+        }
+        if (datePart.EndsWith("之前"))
+        {
+            return DateOnly.FromDateTime(DateTime.Today);
+        }
+        if (
+            DateOnly.TryParseExact(
+                datePart,
+                "yyyy年M月d日",
+                null,
+                System.Globalization.DateTimeStyles.None,
+                out var parsedDate
+            )
+        )
+        {
+            return parsedDate;
+        }
+        return null;
+    }
+
+    private string UrlEncode(Dictionary<string, string> parameters)
+    {
+        return string.Join(
+            "&",
+            parameters.Select(kvp =>
+                $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"
+            )
+        );
+    }
+
+    public void Dispose()
+    {
+        _browser?.CloseAsync()?.GetAwaiter().GetResult();
+        _browser?.DisposeAsync().GetAwaiter().GetResult();
+        _playwright?.Dispose();
+    }
+}
+
+
+/////////// 新的类以及返回类型
+internal class ShaBingSearchCore
+{
+    public async Task<ShaBingSearchResponse<ShaBingWebPage>?> ExecuteSearchAsync(
+        string query,
+        TextSearchOptions searchOptions,
+        CancellationToken cancellationToken = default
+    )
+    {
+
+        throw new NotImplementedException();
+    }
+}
+
+#pragma warning disable CA1812 // 通过反射实例化
+/// <summary>
+/// Sha Bing 搜索响应。
+/// </summary>
+internal sealed class ShaBingSearchResponse<T>
+{
+    /// <summary>
+    /// 类型提示，设置为 SearchResponse。
+    /// </summary>
+    [JsonPropertyName("_type")]
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Bing 用于请求的查询字符串。
+    /// </summary>
+    [JsonPropertyName("queryContext")]
+    public ShaBingQueryContext? QueryContext { get; set; }
+
+    /// <summary>
+    /// 一个可空的 WebAnswer 对象，包含 Web 搜索 API 响应数据。
+    /// </summary>
+    [JsonPropertyName("webPages")]
+    public ShaBingWebPages<T>? WebPages { get; set; }
+}
+
+/// <summary>
+/// Sha Bing 用于请求的查询字符串。
+/// </summary>
+internal sealed class ShaBingQueryContext
+{
+    /// <summary>
+    /// 请求中指定的查询字符串。
+    /// </summary>
+    [JsonPropertyName("originalQuery")]
+    public string OriginalQuery { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Sha Bing 用于执行查询的查询字符串。如果原始查询字符串包含拼写错误，Sha Bing 会使用修改后的查询字符串。
+    /// 例如，如果查询字符串是 saling downwind，修改后的查询字符串是 sailing downwind。
+    /// </summary>
+    /// <remarks>
+    /// 仅当原始查询字符串包含拼写错误时，对象才包含此字段。
+    /// </remarks>
+    [JsonPropertyName("alteredQuery")]
+    public string? AlteredQuery { get; set; }
+}
+
+/// <summary>
+/// 与搜索查询相关的网页列表。
+/// </summary>
+#pragma warning disable CA1056 // 无法按照此类要求定义常量 Uri
+internal sealed class ShaBingWebPages<T>
+{
+    /// <summary>
+    /// 唯一标识网页搜索结果的 ID。
+    /// </summary>
+    /// <remarks>
+    /// 仅当排名结果建议将所有网页搜索结果分组显示时，对象才包含此字段。有关如何使用此 ID 的更多信息，请参阅排名结果。
+    /// </remarks>
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 与查询相关的估计网页数量。使用此数字以及 count 和 offset 查询参数对结果进行分页。
+    /// </summary>
+    [JsonPropertyName("totalEstimatedMatches")]
+    public long TotalEstimatedMatches { get; set; }
+
+    /// <summary>
+    /// 指向所请求网页的 Bing 搜索结果的 URL。
+    /// </summary>
+    [JsonPropertyName("webSearchUrl")]
+    public string WebSearchUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 与查询相关的网页列表。
+    /// </summary>
+    [JsonPropertyName("value")]
+    public IList<T>? Value { get; set; }
+}
+#pragma warning restore CA1056
+#pragma warning restore CA1812
+
+
+
+/// <summary>
+/// 定义与查询相关的网页。
+/// </summary>
+public sealed class ShaBingWebPage
+{
+    /// <summary>
+    /// 仅允许在本包内创建。
+    /// </summary>
+    [JsonConstructor]
+    internal ShaBingWebPage() { }
+
+    /// <summary>
+    /// Bing 最后一次爬取该网页的时间。
+    /// </summary>
+    /// <remarks>
+    /// 日期格式为 YYYY-MM-DDTHH:MM:SS。例如，2015-04-13T05:23:39。
+    /// </remarks>
+    [JsonPropertyName("dateLastCrawled")]
+    public string? DateLastCrawled { get; set; }
+
+    /// <summary>
+    /// 网页的显示 URL。
+    /// </summary>
+    /// <remarks>
+    /// 此 URL 仅用于显示目的，格式可能不正确。
+    /// </remarks>
+    [JsonPropertyName("displayUrl")]
+#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
+    public string? DisplayUrl { get; set; }
+#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
+
+    /// <summary>
+    /// 此网页在网页搜索结果列表中的唯一标识符。
+    /// </summary>
+    /// <remarks>
+    /// 仅当 Ranking 答案指定要将网页与其他搜索结果混合时，对象才包含此字段。
+    /// 每个网页都包含一个与 Ranking 答案中的 ID 匹配的 ID。有关更多信息，请参阅排名结果。
+    /// </remarks>
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    /// <summary>
+    /// 网页的名称。
+    /// </summary>
+    /// <remarks>
+    /// 将此名称与 url 一起使用，创建一个超链接，用户点击该链接即可访问该网页。
+    /// </remarks>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// 描述网页内容的网页文本片段。
+    /// </summary>
+    [JsonPropertyName("snippet")]
+    public string? Snippet { get; set; }
+
+    /// <summary>
+    /// 网页的 URL。
+    /// </summary>
+    /// <remarks>
+    /// 将此 URL 与 name 一起使用，创建一个超链接，用户点击该链接即可访问该网页。
+    /// </remarks>
+    [JsonPropertyName("url")]
+#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
+    public string? Url { get; set; }
+#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

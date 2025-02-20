@@ -41,6 +41,7 @@ ez5_19763_20137	2024 2 10 2025 2 18
 ez5_19763_20137	2024 2 11 2025 2 18
 
  */
+
 public class BingSearchTest : IDisposable
 {
     private IPlaywright _playwright;
@@ -120,9 +121,13 @@ public class BingSearchTest : IDisposable
                         Console.WriteLine("No search results found.");
                     break;
                 }
+                var totalCountNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_tween_searchResults']/span");
+                long? totalEstimatedMatches;
+                if (totalCountNode is not null)
+                    totalEstimatedMatches = ParseTotalCountFromText(totalCountNode.InnerText.Trim());
 
                 var resultItems = bResults.SelectNodes("./li[contains(@class, 'b_algo')]");
-                if (resultItems == null || !resultItems.Any())
+                if (resultItems == null || resultItems.Count == 0)
                 {
                     if (debug)
                         Console.WriteLine("No result items on current page.");
@@ -188,7 +193,15 @@ public class BingSearchTest : IDisposable
 
         return results.Take(numResults).ToList();
     }
-
+    private long? ParseTotalCountFromText(string input)
+    {
+        string cleanNumber = input.Replace("约 ", "").Replace(" 个结果", "").Replace(",", "");
+        // 尝试解析为 long 类型
+        if (long.TryParse(cleanNumber, out long number))
+            return number;
+        else
+            return null;
+    }
     private string? ParseImageUrlInLable(string lable)
     {
         string decodedUrl = System.Net.WebUtility.HtmlDecode(lable);
