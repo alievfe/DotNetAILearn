@@ -447,419 +447,233 @@ private static string BuildQuery(string query, TextSearchOptions searchOptions)
 
 
 
+```cs
+// 版权所有 (c) 微软公司。保留所有权利。
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.SemanticKernel.Http;
+
+namespace Microsoft.SemanticKernel.Plugins.Web.Bing;
+
+/// <summary>
+/// Bing API 连接器。
+/// </summary>
+public sealed class BingConnector : IWebSearchEngineConnector
+{
+    private readonly ILogger _logger;
+    private readonly HttpClient _httpClient;
+    private readonly string? _apiKey;
+    private readonly Uri? _uri = null;
+    private const string DefaultUri = "https://api.bing.microsoft.com/v7.0/search?q";
+
+    /// <summary>
+    /// 初始化 <see cref="BingConnector"/> 类的新实例。
+    /// </summary>
+    /// <param name="apiKey">用于验证连接器的 API 密钥。</param>
+    /// <param name="uri">Bing 搜索实例的 URI。默认为 "https://api.bing.microsoft.com/v7.0/search?q"。</param>
+    /// <param name="loggerFactory">用于日志记录的 <see cref="ILoggerFactory"/>。如果为 null，则不进行日志记录。</param>
+    public BingConnector(string apiKey, Uri? uri = null, ILoggerFactory? loggerFactory = null) :
+        this(apiKey, HttpClientProvider.GetHttpClient(), uri, loggerFactory)
+    {
+    }
+
+    /// <summary>
+    /// 初始化 <see cref="BingConnector"/> 类的新实例。
+    /// </summary>
+    /// <param name="apiKey">用于验证连接器的 API 密钥。</param>
+    /// <param name="httpClient">用于发出请求的 HTTP 客户端。</param>
+    /// <param name="uri">Bing 搜索实例的 URI。默认为 "https://api.bing.microsoft.com/v7.0/search?q"。</param>
+    /// <param name="loggerFactory">用于日志记录的 <see cref="ILoggerFactory"/>。如果为 null，则不进行日志记录。</param>
+    public BingConnector(string apiKey, HttpClient httpClient, Uri? uri = null, ILoggerFactory? loggerFactory = null)
+    {
+        // 验证 HTTP 客户端不为空
+        Verify.NotNull(httpClient);
+
+        this._apiKey = apiKey;
+        // 创建日志记录器，如果未提供日志工厂，则使用空日志记录器
+        this._logger = loggerFactory?.CreateLogger(typeof(BingConnector)) ?? NullLogger.Instance;
+        this._httpClient = httpClient;
+        // 添加用户代理请求头
+        this._httpClient.DefaultRequestHeaders.Add("User-Agent", HttpHeaderConstant.Values.UserAgent);
+        // 添加语义内核版本请求头
+        this._httpClient.DefaultRequestHeaders.Add(HttpHeaderConstant.Names.SemanticKernelVersion, HttpHeaderConstant.Values.GetAssemblyVersion(typeof(BingConnector)));
+        // 如果未提供 URI，则使用默认 URI
+        this._uri = uri ?? new Uri(DefaultUri);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default)
+    {
+        // 检查 count 参数是否在有效范围内
+        if (count is <= 0 or >= 50)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} 值必须大于 0 且小于 50。");
+        }
+
+        // 构建请求 URI
+        Uri uri = new($"{this._uri}={Uri.EscapeDataString(query.Trim())}&count={count}&offset={offset}");
+
+        // 记录发送的请求 URI
+        this._logger.LogDebug("正在发送请求: {Uri}", uri);
+
+        // 发送 GET 请求并获取响应
+        using HttpResponseMessage response = await this.SendGetRequestAsync(uri, cancellationToken).ConfigureAwait(false);
+
+        // 记录响应的状态码
+        this._logger.LogDebug("收到响应: {StatusCode}", response.StatusCode);
+
+        // 读取响应内容为字符串，并处理可能的异常
+        string json = await response.Content.ReadAsStringWithExceptionMappingAsync(cancellationToken).ConfigureAwait(false);
+
+        // 响应内容属于敏感数据，使用跟踪日志记录，默认情况下禁用
+        this._logger.LogTrace("收到的响应内容: {Data}", json);
+
+        // 将 JSON 字符串反序列化为 WebSearchResponse 对象
+        WebSearchResponse? data = JsonSerializer.Deserialize<WebSearchResponse>(json);
+
+        List<T>? returnValues = null;
+        if (data?.WebPages?.Value is not null)
+        {
+            if (typeof(T) == typeof(string))
+            {
+                // 如果请求类型为 string，则提取网页摘要作为返回值
+                WebPage[]? results = data?.WebPages?.Value;
+                returnValues = results?.Select(x => x.Snippet).ToList() as List<T>;
+            }
+            else if (typeof(T) == typeof(WebPage))
+            {
+                // 如果请求类型为 WebPage，则返回网页列表
+                List<WebPage>? webPages = [.. data.WebPages.Value];
+                returnValues = webPages.Take(count).ToList() as List<T>;
+            }
+            else
+            {
+                // 如果请求类型不支持，则抛出异常
+                throw new NotSupportedException($"类型 {typeof(T)} 不受支持。");
+            }
+        }
+
+        return
+            returnValues is null ? Array.Empty<T>() :
+            returnValues.Count <= count ? returnValues :
+            returnValues.Take(count);
+    }
+
+    /// <summary>
+    /// 向指定的 URI 发送 GET 请求。
+    /// </summary>
+    /// <param name="uri">要发送请求的 URI。</param>
+    /// <param name="cancellationToken">用于取消请求的取消令牌。</param>
+    /// <returns>表示请求响应的 <see cref="HttpResponseMessage"/>。</returns>
+    private async Task<HttpResponseMessage> SendGetRequestAsync(Uri uri, CancellationToken cancellationToken = default)
+    {
+        // 创建一个 HTTP GET 请求消息
+        using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+        // 如果 API 密钥不为空，则添加到请求头中
+        if (!string.IsNullOrEmpty(this._apiKey))
+        {
+            httpRequestMessage.Headers.Add("Ocp-Apim-Subscription-Key", this._apiKey);
+        }
+
+        // 发送请求并检查响应是否成功
+        return await this._httpClient.SendWithSuccessCheckAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+    }
+}
 ```
-C#帮我重构代码，已有代码如下，现在要迁移到新的类，以及新的返回类型，同时优化调整代码逻辑，保证健全高可用。
-
-public class SearchResult
-{
-    public int Rank { get; set; }
-    public required string Title { get; set; }
-    public required string Url { get; set; }
-    public string? SiteName { get; set; }
-    public string? SiteIcon { get; set; }
-    public string? Image { get; set; }
-    public DateOnly? SiteDate { get; set; }
-    public string? Abstract { get; set; }
-}
-public class BingSearchTest : IDisposable
-{
-    private IPlaywright _playwright;
-    private IBrowser _browser;
-
-    private readonly string _host = "https://cn.bing.com";
-
-    public BingSearchTest()
-    {
-        _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
-        _browser = _playwright
-            .Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true })
-            .GetAwaiter()
-            .GetResult();
-    }
-
-    public async Task<List<SearchResult>> SearchAsync(
-        string keyword,
-        int numResults = 30,
-        bool debug = false
-    )
-    {
-        var results = new List<SearchResult>();
-
-        if (string.IsNullOrEmpty(keyword) || numResults <= 0)
-            return results;
-
-        var page = await _browser.NewPageAsync();
-
-        while (results.Count < numResults)
-        {
-
-            var queryParams = new Dictionary<string, string>
-            {
-                { "q", keyword },
-                { "FPIG", Guid.NewGuid().ToString("N") },
-                { "first", results.Count.ToString() },
-                { "FORM", "PERE1" },
-            };
-            string url = $"{_host}/search?{UrlEncode(queryParams)}";
-
-            try
-            {
-                string? content = null;
-                try
-                {
-                    await page.GotoAsync(url, new PageGotoOptions
-                    {
-                        WaitUntil = WaitUntilState.NetworkIdle,
-                        Timeout = 2500
-                    });
-                    content = await page.ContentAsync();
-                    if (content.Length < 100)
-                    {
-                        await page.ReloadAsync(
-                            new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 2500 }
-                        );
-                        content = await page.ContentAsync();
-                    }
-                }
-                catch (TimeoutException)
-                {
-                    content = await page.ContentAsync();
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(content);
-
-                var bResults = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_results']");
-                if (bResults == null)
-                {
-                    if (debug)
-                        Console.WriteLine("No search results found.");
-                    break;
-                }
-                var totalCountNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='b_tween_searchResults']/span");
-                long? totalEstimatedMatches;
-                if (totalCountNode is not null)
-                    totalEstimatedMatches = ParseTotalCountFromText(totalCountNode.InnerText.Trim());
-
-                var resultItems = bResults.SelectNodes("./li[contains(@class, 'b_algo')]");
-                if (resultItems == null || resultItems.Count == 0)
-                {
-                    if (debug)
-                        Console.WriteLine("No result items on current page.");
-                    break;
-                }
-
-                foreach (var li in resultItems)
-                {
-                    var titleNode = li.SelectSingleNode(".//h2/a");
-                    var urlNode = li.SelectSingleNode(".//div[contains(@class, 'b_tpcn')]//a");
-                    var iconNode = li.SelectSingleNode(".//div[contains(@class, 'wr_fav')]/div/img");
-                    var abstractNode = li.SelectSingleNode(".//div[contains(@class, 'b_caption')]");
-                    var abstractNode2 = li.SelectSingleNode(
-                        ".//p[contains(@class, 'b_lineclamp3')]"
-                    );
-                    var imageNode = li.SelectSingleNode(".//a[contains(@class, 'b_ci_image_ova')]");
-                    var title = titleNode?.InnerText.Trim();
-                    var iurl = urlNode?.GetAttributeValue("href", "").Trim();
-                    var siteName = urlNode?.GetAttributeValue("aria-label", "").Trim();
-                    var iconurl = iconNode?.GetAttributeValue("src", "").Trim();
-
-                    var abstractText = abstractNode?.InnerText.Trim();
-                    if (string.IsNullOrEmpty(abstractText))
-                        abstractText = abstractNode2?.InnerText.Trim() ?? "";
-                    
-                    string? imageurl = null;
-                    if (imageNode is not null)
-                        imageurl = ParseImageUrlInLable(
-                            imageNode.GetAttributeValue("aria-label", "").Trim()
-                        );
-
-                    var siteDate = ParseDateInText(abstractText);
-
-                    if (string.IsNullOrEmpty(title))
-                        continue;
-                    if (string.IsNullOrEmpty(iurl))
-                        continue;
-
-                    results.Add(
-                        new SearchResult
-                        {
-                            Rank = results.Count + 1,
-                            Title = title,
-                            Url = iurl,
-                            SiteName = siteName,
-                            SiteIcon = iconurl,
-                            SiteDate = siteDate,
-                            Image = imageurl,
-                            Abstract = abstractText,
-                        }
-                    );
-
-                    if (results.Count >= numResults)
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex}");
-                break;
-            }
-        }
-
-        return results.Take(numResults).ToList();
-    }
-    private long? ParseTotalCountFromText(string input)
-    {
-        string cleanNumber = input.Replace("约 ", "").Replace(" 个结果", "").Replace(",", "");
-        // 尝试解析为 long 类型
-        if (long.TryParse(cleanNumber, out long number))
-            return number;
-        else
-            return null;
-    }
-    private string? ParseImageUrlInLable(string lable)
-    {
-        string decodedUrl = System.Net.WebUtility.HtmlDecode(lable);
-        var uri = new Uri(_host + decodedUrl);
-        var queryParams = HttpUtility.ParseQueryString(uri.Query);
-        return queryParams["mediaurl"];
-    }
-
-    private DateOnly? ParseDateInText(string input)
-    {
-        input = input.Length < 20 ? input : input[..20];
-        int dotIndex = input.IndexOf(" · ");
-        if (dotIndex == -1)
-            return null;
-        string datePart = input[..dotIndex].Trim();
-        if (datePart.EndsWith("天前"))
-        {
-            int days = int.Parse(datePart.Replace("天前", "").Trim());
-            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days);
-        }
-        if (datePart.EndsWith("天之前"))
-        {
-            int days = int.Parse(datePart.Replace("天之前", "").Trim());
-            return DateOnly.FromDateTime(DateTime.Today).AddDays(-days);
-        }
-        if (datePart.EndsWith("之前"))
-        {
-            return DateOnly.FromDateTime(DateTime.Today);
-        }
-        if (
-            DateOnly.TryParseExact(
-                datePart,
-                "yyyy年M月d日",
-                null,
-                System.Globalization.DateTimeStyles.None,
-                out var parsedDate
-            )
-        )
-        {
-            return parsedDate;
-        }
-        return null;
-    }
-
-    private string UrlEncode(Dictionary<string, string> parameters)
-    {
-        return string.Join(
-            "&",
-            parameters.Select(kvp =>
-                $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"
-            )
-        );
-    }
-
-    public void Dispose()
-    {
-        _browser?.CloseAsync()?.GetAwaiter().GetResult();
-        _browser?.DisposeAsync().GetAwaiter().GetResult();
-        _playwright?.Dispose();
-    }
-}
 
 
-/////////// 新的类以及返回类型
-internal class ShaBingSearchCore
-{
-    public async Task<ShaBingSearchResponse<ShaBingWebPage>?> ExecuteSearchAsync(
-        string query,
-        TextSearchOptions searchOptions,
-        CancellationToken cancellationToken = default
-    )
-    {
 
-        throw new NotImplementedException();
-    }
-}
-
-#pragma warning disable CA1812 // 通过反射实例化
+```cs
 /// <summary>
-/// Sha Bing 搜索响应。
+/// 网络搜索引擎连接器接口。
 /// </summary>
-internal sealed class ShaBingSearchResponse<T>
+public interface IWebSearchEngineConnector
 {
     /// <summary>
-    /// 类型提示，设置为 SearchResponse。
+    /// 执行一次网络搜索引擎搜索。
     /// </summary>
-    [JsonPropertyName("_type")]
-    public string Type { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Bing 用于请求的查询字符串。
-    /// </summary>
-    [JsonPropertyName("queryContext")]
-    public ShaBingQueryContext? QueryContext { get; set; }
-
-    /// <summary>
-    /// 一个可空的 WebAnswer 对象，包含 Web 搜索 API 响应数据。
-    /// </summary>
-    [JsonPropertyName("webPages")]
-    public ShaBingWebPages<T>? WebPages { get; set; }
+    /// <param name="query">要搜索的查询内容。</param>
+    /// <param name="count">搜索结果的数量。</param>
+    /// <param name="offset">要跳过的搜索结果数量。</param>
+    /// <param name="cancellationToken">用于监视取消请求的 <see cref="CancellationToken"/>。默认值为 <see cref="CancellationToken.None"/>。</param>
+    /// <returns>搜索返回的首批片段内容。</returns>
+    Task<IEnumerable<T>> SearchAsync<T>(string query, int count = 1, int offset = 0, CancellationToken cancellationToken = default);
 }
+```
+
+
+
+```cs
+// 版权所有 (c) 微软公司。保留所有权利。
+
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+
+namespace Microsoft.SemanticKernel.Plugins.Web;
 
 /// <summary>
-/// Sha Bing 用于请求的查询字符串。
+/// 一个密封类，包含来自相应网络搜索 API 的反序列化响应。
 /// </summary>
-internal sealed class ShaBingQueryContext
+/// <returns>一个 WebPage 对象，包含网络搜索 API 的响应数据。</returns>
+[SuppressMessage("Performance", "CA1056:更改参数 'uri' 的类型...",
+    Justification = "无法按照此类要求定义常量 Uri")]
+public sealed class WebPage
 {
     /// <summary>
-    /// 请求中指定的查询字符串。
+    /// 搜索结果的名称。
     /// </summary>
-    [JsonPropertyName("originalQuery")]
-    public string OriginalQuery { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Sha Bing 用于执行查询的查询字符串。如果原始查询字符串包含拼写错误，Sha Bing 会使用修改后的查询字符串。
-    /// 例如，如果查询字符串是 saling downwind，修改后的查询字符串是 sailing downwind。
-    /// </summary>
-    /// <remarks>
-    /// 仅当原始查询字符串包含拼写错误时，对象才包含此字段。
-    /// </remarks>
-    [JsonPropertyName("alteredQuery")]
-    public string? AlteredQuery { get; set; }
-}
-
-/// <summary>
-/// 与搜索查询相关的网页列表。
-/// </summary>
-#pragma warning disable CA1056 // 无法按照此类要求定义常量 Uri
-internal sealed class ShaBingWebPages<T>
-{
-    /// <summary>
-    /// 唯一标识网页搜索结果的 ID。
-    /// </summary>
-    /// <remarks>
-    /// 仅当排名结果建议将所有网页搜索结果分组显示时，对象才包含此字段。有关如何使用此 ID 的更多信息，请参阅排名结果。
-    /// </remarks>
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 与查询相关的估计网页数量。使用此数字以及 count 和 offset 查询参数对结果进行分页。
-    /// </summary>
-    [JsonPropertyName("totalEstimatedMatches")]
-    public long TotalEstimatedMatches { get; set; }
-
-    /// <summary>
-    /// 指向所请求网页的 Bing 搜索结果的 URL。
-    /// </summary>
-    [JsonPropertyName("webSearchUrl")]
-    public string WebSearchUrl { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 与查询相关的网页列表。
-    /// </summary>
-    [JsonPropertyName("value")]
-    public IList<T>? Value { get; set; }
-}
-#pragma warning restore CA1056
-#pragma warning restore CA1812
-
-
-
-/// <summary>
-/// 定义与查询相关的网页。
-/// </summary>
-public sealed class ShaBingWebPage
-{
-    /// <summary>
-    /// 仅允许在本包内创建。
-    /// </summary>
-    [JsonConstructor]
-    internal ShaBingWebPage() { }
-
-    /// <summary>
-    /// Bing 最后一次爬取该网页的时间。
-    /// </summary>
-    /// <remarks>
-    /// 日期格式为 YYYY-MM-DDTHH:MM:SS。例如，2015-04-13T05:23:39。
-    /// </remarks>
-    [JsonPropertyName("dateLastCrawled")]
-    public string? DateLastCrawled { get; set; }
-
-    /// <summary>
-    /// 网页的显示 URL。
-    /// </summary>
-    /// <remarks>
-    /// 此 URL 仅用于显示目的，格式可能不正确。
-    /// </remarks>
-    [JsonPropertyName("displayUrl")]
-#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
-    public string? DisplayUrl { get; set; }
-#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
-
-    /// <summary>
-    /// 此网页在网页搜索结果列表中的唯一标识符。
-    /// </summary>
-    /// <remarks>
-    /// 仅当 Ranking 答案指定要将网页与其他搜索结果混合时，对象才包含此字段。
-    /// 每个网页都包含一个与 Ranking 答案中的 ID 匹配的 ID。有关更多信息，请参阅排名结果。
-    /// </remarks>
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
-
-    /// <summary>
-    /// 网页的名称。
-    /// </summary>
-    /// <remarks>
-    /// 将此名称与 url 一起使用，创建一个超链接，用户点击该链接即可访问该网页。
-    /// </remarks>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// 描述网页内容的网页文本片段。
+    /// 搜索结果的 URL。
+    /// </summary>
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 搜索结果的摘要。
     /// </summary>
     [JsonPropertyName("snippet")]
-    public string? Snippet { get; set; }
-
-    /// <summary>
-    /// 网页的 URL。
-    /// </summary>
-    /// <remarks>
-    /// 将此 URL 与 name 一起使用，创建一个超链接，用户点击该链接即可访问该网页。
-    /// </remarks>
-    [JsonPropertyName("url")]
-#pragma warning disable CA1056 // 类似 URI 的属性不应为字符串
-    public string? Url { get; set; }
-#pragma warning restore CA1056 // 类似 URI 的属性不应为字符串
+    public string Snippet { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// 一个密封类，包含来自相应网络搜索 API 的反序列化响应。
+/// </summary>
+/// <returns>一个 WebPages? 对象，包含搜索 API 响应数据中的 WebPages 数组，或者为 null。</returns>
+public sealed class WebSearchResponse
+{
+    /// <summary>
+    /// 一个可空的 WebPages 对象，包含网络搜索 API 的响应数据。
+    /// </summary>
+    [JsonPropertyName("webPages")]
+    public WebPages? WebPages { get; set; }
+}
+
+/// <summary>
+/// 一个密封类，包含来自相应网络搜索 API 的反序列化响应。
+/// </summary>
+/// <returns>一个 WebPages 数组对象，包含网络搜索 API 的响应数据。</returns>
+[SuppressMessage("Performance", "CA1819:属性不应返回数组", Justification = "网络搜索 API 要求如此")]
+public sealed class WebPages
+{
+    /// <summary>
+    /// 一个可空的 WebPage 数组对象，包含网络搜索 API 的响应数据。
+    /// </summary>
+    [JsonPropertyName("value")]
+    public WebPage[]? Value { get; set; }
+}
 ```
-
-
-
-
-
-
-
-
 
 
 

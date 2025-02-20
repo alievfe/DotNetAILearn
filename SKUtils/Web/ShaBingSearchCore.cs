@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Playwright;
 using Microsoft.SemanticKernel.Data;
-using Microsoft.SemanticKernel.Plugins.Web.Bing;
 
 namespace SKUtils.Web;
 
