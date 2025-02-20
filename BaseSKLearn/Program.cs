@@ -24,6 +24,7 @@ using HtmlAgilityPack;
 using System.Web;
 using System;
 using System.Text.Encodings.Web;
+using BaseSKLearn.SKOfficialDemos.GettingStartedWithTextSearch;
 
 Console.WriteLine("Hello, World!");
 
@@ -83,14 +84,16 @@ Console.WriteLine("Hello, World!");
 
 
 
-using var bingSearch = new ShaBingSearchCore();
-var results = await bingSearch.ExecuteSearchAsync("python", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 15});
+//using var bingSearch = new ShaBingSearchCore();
+//var results = await bingSearch.ExecuteSearchAsync("python", new Microsoft.SemanticKernel.Data.TextSearchOptions() { Top = 15});
 
-Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
-{
-    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    WriteIndented = true
-}));
+//Console.WriteLine(JsonSerializer.Serialize(results, new JsonSerializerOptions
+//{
+//    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+//    WriteIndented = true
+//}));
+
+await new Step1_Web_Search().SearchForTextSearchResultsAsync();
 
 
 

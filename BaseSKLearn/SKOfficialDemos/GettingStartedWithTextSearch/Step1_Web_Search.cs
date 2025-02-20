@@ -2,6 +2,7 @@
 using Microsoft.SemanticKernel.Plugins.Web.Bing;
 using Microsoft.SemanticKernel.Plugins.Web.Google;
 using SKUtils.TestUtils;
+using SKUtils.Web;
 using Xunit.Abstractions;
 
 namespace BaseSKLearn.SKOfficialDemos.GettingStartedWithTextSearch;
@@ -14,11 +15,10 @@ public class Step1_Web_Search
     /// <summary>
     /// 展示如何创建 <see cref="BingTextSearch"/> 并使用它进行搜索。
     /// </summary>
-    [Fact]
-    public async Task BingSearchAsync()
+    public async Task ShaBingSearchAsync()
     {
         // 使用必应搜索创建一个 ITextSearch 实例
-        var textSearch = new BingTextSearch(apiKey: "");
+        var textSearch = new ShaBingSearch();
 
         var query = "什么是语义内核？";
 
@@ -34,36 +34,13 @@ public class Step1_Web_Search
     }
 
     /// <summary>
-    /// 展示如何创建 <see cref="GoogleTextSearch"/> 并使用它进行搜索。
+    /// 展示如何创建 <see cref="ShaBingSearch"/> 并使用它进行搜索，
+    /// 并将结果作为 <see cref="ShaBingWebPage"/> 实例的集合返回。
     /// </summary>
-    [Fact]
-    public async Task GoogleSearchAsync()
-    {
-        // 使用谷歌搜索创建一个 ITextSearch 实例
-        var textSearch = new GoogleTextSearch(searchEngineId: "", apiKey: "");
-
-        var query = "什么是语义内核？";
-
-        // 进行搜索并返回结果
-        KernelSearchResults<string> searchResults = await textSearch.SearchAsync(
-            query,
-            new() { Top = 4 }
-        );
-        await foreach (string result in searchResults.Results)
-        {
-            Console.WriteLine(result);
-        }
-    }
-
-    /// <summary>
-    /// 展示如何创建 <see cref="BingTextSearch"/> 并使用它进行搜索，
-    /// 并将结果作为 <see cref="BingWebPage"/> 实例的集合返回。
-    /// </summary>
-    [Fact]
     public async Task SearchForWebPagesAsync()
     {
         // 创建一个 ITextSearch 实例
-        ITextSearch textSearch = new BingTextSearch(apiKey: "");
+        var textSearch = new ShaBingSearch();
 
         var query = "什么是语义内核？";
 
@@ -73,7 +50,7 @@ public class Step1_Web_Search
             new() { Top = 4 }
         );
         Console.WriteLine("\n--- 必应网页搜索结果 ---\n");
-        await foreach (BingWebPage webPage in objectResults.Results)
+        await foreach (ShaBingWebPage webPage in objectResults.Results)
         {
             Console.WriteLine($"名称:            {webPage.Name}");
             Console.WriteLine($"摘要:         {webPage.Snippet}");
@@ -90,12 +67,11 @@ public class Step1_Web_Search
     /// <remarks>
     /// 当你希望以一致的方式处理不同搜索服务的结果时，使用标准化的搜索结果格式会很有用。
     /// </remarks>
-    public async Task SearchForTextSearchResultsAsync(bool useBingSearch = true)
+    public async Task SearchForTextSearchResultsAsync()
     {
         // 创建一个 ITextSearch 实例
-        ITextSearch textSearch = useBingSearch
-            ? new BingTextSearch(apiKey: "")
-            : new GoogleTextSearch(searchEngineId: "", apiKey: "");
+        var textSearch = new ShaBingSearch();
+
 
         var query = "什么是语义内核？";
 
